@@ -1,0 +1,26 @@
+{
+  "name": "midiPianoOnline",
+  "version": "0.0.0",
+  "authors": [
+    "garzon <610204679@qq.com>"
+  ],
+  "description": "midiPianoOnline",
+  "main": "index.html",
+  "keywords": [
+    "midi",
+    "piano",
+    "online"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.4.5",
+    "bootstrap": "~3.3.5"
+  }
+}
