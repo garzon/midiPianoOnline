@@ -1,0 +1,30 @@
+.piano-keyboard {
+    height: 100px;
+    width: 100%;
+    display: block;
+}
+
+.piano-keyboard-bottom {
+    bottom: 0;
+}
+
+.piano-keyboard-key {
+    top: 0;
+    border: 1px solid;
+    border-radius: 3px;
+    display: inline-block;
+    float: left;
+}
+
+.piano-keyboard-blackkey {
+    background-color: #000000;
+    height: 60%;
+    z-index: 10;
+    position: relative;
+}
+
+.piano-keyboard-whitekey {
+    height: 100%;
+    background-color: #ffffff;
+    z-index: 5;
+}
