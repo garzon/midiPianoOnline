@@ -6,10 +6,6 @@ function MidiKeyBoard($insertPoint) {
     var keyArray = {};
     var barArray = {};
 
-    var indexBar = function(channelId, note, absoluteTime) {
-        return channelId + '-' + note + '-' + absoluteTime;
-    };
-
     var key_dbound = 21, key_ubound = 108;
     var whitekey_width, blackkey_width;
 
@@ -20,35 +16,37 @@ function MidiKeyBoard($insertPoint) {
         barArray = [];
     };
 
-    var generateBar = function(channelId, note, realAbsoluteTime, realDuringTime, realNowTime) {
-        var index = indexBar(channelId, note, realAbsoluteTime);
+    var generateBar = function(channelId, note, realAbsoluteTime, realDuringTime, realNowTime, barId) {
+        if(realNowTime >= realAbsoluteTime + realDuringTime) return;
+        var index = barId;
         if(barArray[index]) return;
 
         if(realDuringTime <= 0) realDuringTime = 0.01;  // a short bar
 
-        var $ele = $("<div/>");
+        var $ele = $("<div/>").data('channel', channelId).data('note', note).data('barId', barId);
         barArray[index] = $ele;
         var $key = keyArray[note];
 
-        var screen_path = getPosition($insertPoint.get(0)).top;
+        var screen_path = getPosition($key.get(0)).top;
         var velocity = screen_path / screen_time;
-        var height = Math.round(realDuringTime * velocity);
+        var height = realDuringTime * velocity;
 
         var toTopTime = realAbsoluteTime-screen_time-realNowTime+realDuringTime;
-        var deleteTime = (realAbsoluteTime+realDuringTime-realNowTime)*1000;
+        var deleteTime = (toTopTime+screen_time)*1000;
+        var top = -toTopTime*velocity;
 
         $ele.css({
             width: (isBlackKey(note) ? blackkey_width : whitekey_width) + "%",
             left: (getPosition($key.get(0)).left * 100 / innerWidth) + '%',
             height: height + 'px',
-            top: Math.round(-toTopTime*velocity) + 'px'
+            top: top + 'px'
         }).addClass("piano-bar").animate({
             top: screen_path + 'px'
         }, deleteTime, 'linear');
 
         $ele.insertBefore($insertPoint);
 
-        window.setTimeout(function() {
+        window.mySetTimeout(function() {
             if(barArray[index] && barArray[index].get(0) == $ele.get(0))
                 barArray[index] = undefined;
             $ele.remove();
@@ -81,7 +79,7 @@ function MidiKeyBoard($insertPoint) {
         whitekey_width = 98.0 / whiteKeyNum;
         blackkey_width = whitekey_width*0.6;
         for(var keyId = key_dbound; keyId <= key_ubound; keyId++) {
-            var $keyDiv = $("<div/>").addClass('piano-keyboard-key');
+            var $keyDiv = $("<div/>").addClass('piano-keyboard-key').data('note', keyId);
             var basicCss = {};
             if (isBlackKey(keyId)) {
                 basicCss['width'] = blackkey_width + "%";

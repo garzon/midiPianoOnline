@@ -37,3 +37,13 @@ function string2binary(str) {
 function frequencyFromNoteNumber(note) {
     return 440 * Math.pow(2,(note-69)/12);
 }
+
+function mySetTimeout(callback, countdown) {
+    var countdown = countdown/2;
+    var originalTime = new Date().getTime() + countdown;
+    var realCallback = function() {
+        var msDelay = new Date().getTime() - originalTime;
+        window.setTimeout(callback, countdown-msDelay);
+    };
+    window.setTimeout(realCallback, countdown);
+}

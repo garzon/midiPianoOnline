@@ -28,18 +28,20 @@ MidiNoteBarController.prototype._createBarInView = function() {
         var evtPointer = this.tracksCurrentEvent[i]+1;
         if(evtPointer == this.midiFileObj.tracks[i].length) continue;
         while(evtPointer < this.midiFileObj.tracks[i].length &&
-        this.midiFileObj.tracks[i][evtPointer].absoluteTicks <= findEventToShowInTicks) {
+              this.midiFileObj.tracks[i][evtPointer].absoluteTicks <= findEventToShowInTicks) {
             var event = this.midiFileObj.tracks[i][evtPointer];
             if(event.subtype == 'noteOn') {
+                var barId = event.channel + '-' + event.noteNumber + '-' + event.absoluteTicks;
                 this.midiKeyboardObj.generateBar(event.channel, event.noteNumber,
-                    this.ticksToMs(event.absoluteTicks)/1000, this.ticksToMs(event.lastTime)/1000, realNowTime);
+                    this.ticksToMs(event.absoluteTicks)/1000, this.ticksToMs(event.lastTime)/1000, realNowTime, barId);
             }
             evtPointer++;
         }
     }
 };
 
-MidiNoteBarController.prototype._playLoop = function(deltatime) {
+MidiNoteBarController.prototype._playLoop = function(deltatime, msDelay) {
+    if(typeof msDelay == 'undefined') msDelay = 0;
     this.tick += deltatime;
     var finishFlag = true;
     for(var i=0; i<this.midiFileObj.tracks.length; i++) {
@@ -58,20 +60,26 @@ MidiNoteBarController.prototype._playLoop = function(deltatime) {
     }
 
     this._createBarInView();
-    this._setPlayLoop(this._findNextDeltatime());
+    this._setPlayLoop(this._findNextDeltatime(), msDelay);
 };
 
-MidiNoteBarController.prototype._setPlayLoop = function(deltatime) {
+MidiNoteBarController.prototype._setPlayLoop = function(deltatime, msDelay) {
     if(this.pause) return;
 
-    // write in this form in order to activate gc
-    var playLoopCallback = (function(self, dtime) {
-        return function() {
-            self._playLoop(dtime);
-        };
-    })(this, deltatime);
+    var date = new Date();
+    var lastTime = date.getTime();
+    var countdown = this.ticksToMs(deltatime)-msDelay; // fix the error of js timer
 
-    window.setTimeout(playLoopCallback, this.ticksToMs(deltatime));
+    // write in this form in order to activate gc
+    var playLoopCallback = (function(self, dtime, lastTime) {
+        return function() {
+            var date = new Date();
+            var msDelay = date.getTime() - lastTime;
+            self._playLoop(dtime, msDelay);
+        };
+    })(this, deltatime, lastTime+countdown);
+
+    window.setTimeout(playLoopCallback, countdown);
 };
 
 MidiNoteBarController.prototype.ticksToMs = function(ticks) {

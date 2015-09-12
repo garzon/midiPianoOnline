@@ -66,7 +66,7 @@ WebAudioController.prototype.noteOn = function(channelId, note, velocity, deltat
 
     if(deltatime == -1) {
         var self = this;
-        window.setTimeout(function() { self.noteOff(channelId, note); }, 1000);
+        window.mySetTimeout(function() { self.noteOff(channelId, note); }, 1000);
     }
 };
 
