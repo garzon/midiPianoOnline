@@ -21,6 +21,24 @@ MidiNoteBarController.prototype._findNextDeltatime = function() {
     return nextDeltatime;
 };
 
+MidiNoteBarController.prototype._createBarInView = function() {
+    var findEventToShowInTicks = this.msToTicks((this.midiKeyboardObj.screen_time + 1)*1000) + this.tick;
+    var realNowTime = this.ticksToMs(this.tick)/1000;
+    for(var i=0; i<this.midiFileObj.tracks.length; i++) {
+        var evtPointer = this.tracksCurrentEvent[i]+1;
+        if(evtPointer == this.midiFileObj.tracks[i].length) continue;
+        while(evtPointer < this.midiFileObj.tracks[i].length &&
+        this.midiFileObj.tracks[i][evtPointer].absoluteTicks <= findEventToShowInTicks) {
+            var event = this.midiFileObj.tracks[i][evtPointer];
+            if(event.subtype == 'noteOn') {
+                this.midiKeyboardObj.generateBar(event.channel, event.noteNumber,
+                    this.ticksToMs(event.absoluteTicks)/1000, this.ticksToMs(event.lastTime)/1000, realNowTime);
+            }
+            evtPointer++;
+        }
+    }
+};
+
 MidiNoteBarController.prototype._playLoop = function(deltatime) {
     this.tick += deltatime;
     var finishFlag = true;
@@ -39,23 +57,7 @@ MidiNoteBarController.prototype._playLoop = function(deltatime) {
         return;
     }
 
-    // show the bars
-    var findEventToShowInTicks = this.msToTicks((this.midiKeyboardObj.screen_time + 1)*1000) + this.tick;
-    var realNowTime = this.ticksToMs(this.tick)/1000;
-    for(var i=0; i<this.midiFileObj.tracks.length; i++) {
-        var evtPointer = this.tracksCurrentEvent[i]+1;
-        if(evtPointer == this.midiFileObj.tracks[i].length) continue;
-        while(evtPointer < this.midiFileObj.tracks[i].length &&
-              this.midiFileObj.tracks[i][evtPointer].absoluteTicks <= findEventToShowInTicks) {
-            var event = this.midiFileObj.tracks[i][evtPointer];
-            if(event.subtype == 'noteOn') {
-                this.midiKeyboardObj.generateBar(event.channel, event.noteNumber,
-                    this.ticksToMs(event.absoluteTicks)/1000, this.ticksToMs(event.lastTime)/1000, realNowTime);
-            }
-            evtPointer++;
-        }
-    }
-
+    this._createBarInView();
     this._setPlayLoop(this._findNextDeltatime());
 };
 
@@ -82,7 +84,7 @@ MidiNoteBarController.prototype.msToTicks = function(ms) {
     return ms / msPerTick;
 };
 
-MidiNoteBarController.prototype.open = function(midiFileObj) {
+MidiNoteBarController.prototype.load = function(midiFileObj) {
     this.midiFileObj = midiFileObj;
     this.beatsPerMinute = 120;
     this.ticksPerBeat = midiFileObj.header.ticksPerBeat;
@@ -103,7 +105,7 @@ MidiNoteBarController.prototype.resetCursor = function() {
 
 MidiNoteBarController.prototype.handleEvent = function(event, isFromView) {
     if(isFromView && this.recordMode) {
-
+        // TODO
     }
     switch (event.type) {
         case 'meta':

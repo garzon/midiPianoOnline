@@ -16,7 +16,8 @@ function MidiKeyBoard($insertPoint) {
     var screen_time = 3;
 
     var refreshBarView = function() {
-
+        $(".piano-bar").remove();
+        barArray = [];
     };
 
     var generateBar = function(channelId, note, realAbsoluteTime, realDuringTime, realNowTime) {
@@ -48,7 +49,7 @@ function MidiKeyBoard($insertPoint) {
         $ele.insertBefore($insertPoint);
 
         window.setTimeout(function() {
-            if(barArray[index].get(0) == $ele.get(0))
+            if(barArray[index] && barArray[index].get(0) == $ele.get(0))
                 barArray[index] = undefined;
             $ele.remove();
         }, deleteTime);
@@ -78,7 +79,7 @@ function MidiKeyBoard($insertPoint) {
         for(var keyId = key_dbound; keyId <= key_ubound; keyId++)
             if (!isBlackKey(keyId)) whiteKeyNum++;
         whitekey_width = 98.0 / whiteKeyNum;
-        blackkey_width = whitekey_width*0.8;
+        blackkey_width = whitekey_width*0.6;
         for(var keyId = key_dbound; keyId <= key_ubound; keyId++) {
             var $keyDiv = $("<div/>").addClass('piano-keyboard-key');
             var basicCss = {};
@@ -101,6 +102,8 @@ function MidiKeyBoard($insertPoint) {
             keyArray[keyId] = $keyDiv;
         }
     };
+
+    window.addEventListener('resize', refreshBarView);
 
     return {
         render: render,

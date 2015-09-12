@@ -1,9 +1,9 @@
-function MidiFileReader(raw_data) {
+function MidiData(raw_data) {
     // This is a wrapper of MidiFile in jasmid.
 
     var midiFileObj = MidiFile(raw_data);
 
-    midiFileObj.totalTicks = 0;
+    var totalTicks = 0;
 
     // calculate absoluteTick for each event and lastTime for each noteOn event
     var lastNoteOnTickAt = {};
@@ -31,7 +31,7 @@ function MidiFileReader(raw_data) {
                     break;
             }
         }
-        midiFileObj.totalTicks = Math.max(midiFileObj.totalTicks, absoluteTicks);
+        totalTicks = Math.max(totalTicks, absoluteTicks);
     }
     for(var k in lastNoteOnTickAt) {
         var lastinfo = lastNoteOnTickAt[k];
@@ -40,5 +40,30 @@ function MidiFileReader(raw_data) {
         }
     }
 
-    return midiFileObj;
+    return {
+        header: midiFileObj.header,
+        tracks: midiFileObj.tracks,
+        totalTicks: totalTicks
+    };
 }
+
+MidiData.loadRemoteMidi = function(path, callback) {
+    function string2binary(str) {
+        var ret = [];
+        for(var i=0; i<str.length; i++) {
+            ret = ret.concat(String.fromCharCode(str.charCodeAt(i) & 0xff));
+        }
+        return ret.join('');
+    }
+
+    var fetch = new XMLHttpRequest();
+    fetch.open('GET', path);
+    fetch.overrideMimeType("text/plain; charset=x-user-defined");
+    fetch.onreadystatechange = function() {
+        if(this.readyState == 4 && this.status == 200) {
+            var data = this.responseText || "" ;
+            callback(new MidiData(string2binary(data)));
+        }
+    };
+    fetch.send();
+};

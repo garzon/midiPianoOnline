@@ -22,9 +22,8 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 			$scope.keyboardObj = MidiKeyBoard($keyboard);
 			$scope.keyboardObj.render();
 			$scope.controller = new MidiNoteBarController($scope.keyboardObj, WebAudioChannel);
-			loadRemoteBinary('/midiPianoOnline/attachments/aLIEz.mid', function(raw_data) {
-				var midiFileObj = MidiFileReader(raw_data);
-				$scope.controller.open(midiFileObj);
+			MidiData.loadRemoteMidi('/midiPianoOnline/attachments/aLIEz.mid', function(midiDataObj) {
+				$scope.controller.load(midiDataObj);
 				$scope.controller.play();
 				// var replayerObj = Replayer(midiFileObj, Synth(44100));
 				// var audio = AudioPlayer(replayerObj);
@@ -35,6 +34,6 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 
 <?php
 require(ROOT . '/mixins/footer.php');
-mixin_footer(['midikeyboard.js', 'midifilereader.js', 'midinotebarcontroller.js', 'webaudiopianonode.js',
+mixin_footer(['midikeyboard.js', 'mididata.js', 'midinotebarcontroller.js', 'webaudiopianonode.js',
 	'webaudiocontroller.js', 'webaudiochannel.js', 'jasmid/midifile.js', 'jasmid/stream.js']);
 ?>
