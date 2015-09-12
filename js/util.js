@@ -39,7 +39,11 @@ function frequencyFromNoteNumber(note) {
 }
 
 function mySetTimeout(callback, countdown) {
-    var countdown = countdown/2;
+    if(countdown < 30) {
+        window.setTimeout(callback, countdown);
+        return;
+    }
+    countdown = countdown/2;
     var originalTime = new Date().getTime() + countdown;
     var realCallback = function() {
         var msDelay = new Date().getTime() - originalTime;

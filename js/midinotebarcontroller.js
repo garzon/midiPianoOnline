@@ -22,7 +22,7 @@ MidiNoteBarController.prototype._findNextDeltatime = function() {
 };
 
 MidiNoteBarController.prototype._createBarInView = function() {
-    var findEventToShowInTicks = this.msToTicks((this.midiKeyboardObj.screen_time + 1)*1000) + this.tick;
+    var findEventToShowInTicks = this.msToTicks((this.midiKeyboardObj.screen_time + 0.5)*1000) + this.tick;
     var realNowTime = this.ticksToMs(this.tick)/1000;
     for(var i=0; i<this.midiFileObj.tracks.length; i++) {
         var evtPointer = this.tracksCurrentEvent[i]+1;

@@ -21,10 +21,11 @@ function MidiKeyBoard($insertPoint) {
         var index = barId;
         if(barArray[index]) return;
 
-        if(realDuringTime <= 0) realDuringTime = 0.01;  // a short bar
-
         var $ele = $("<div/>").data('channel', channelId).data('note', note).data('barId', barId);
         barArray[index] = $ele;
+
+        if(realDuringTime <= 0) realDuringTime = 0.01;  // a short bar
+
         var $key = keyArray[note];
 
         var screen_path = getPosition($key.get(0)).top;
