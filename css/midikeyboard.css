@@ -2,6 +2,8 @@
     height: 100px;
     width: 100%;
     display: block;
+    position: fixed;
+    margin: 0 1%;
 }
 
 .piano-keyboard-bottom {

@@ -13,6 +13,9 @@ function mixin_header($pageTitle, $nav_tab, $cssPathArr = [], $extra_msg = '', $
 	<script src="<?= DOMAIN ?>/bower_components/angular/angular.min.js"></script>
 	<script src="<?= DOMAIN ?>/js/util.js"></script>
 
+	<script src="<?= DOMAIN ?>/bower_components/webcomponentsjs/webcomponents.min.js"></script>
+	<link rel="import" href="<?= DOMAIN ?>/bower_components/x-webmidi/x-webmidirequestaccess.html">
+
 	<link rel="stylesheet" href="<?= DOMAIN ?>/bower_components/bootstrap/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="<?= DOMAIN ?>/css/base.css">
 	<? foreach ($cssPathArr as $cssFile) { ?>
@@ -41,6 +44,7 @@ function mixin_header($pageTitle, $nav_tab, $cssPathArr = [], $extra_msg = '', $
 </head>
 
 <body>
+	<x-webmidirequestaccess sysex="false" input="true" output="true"></x-webmidirequestaccess>
 	<div class="row">
 		<nav class="navbar navbar-default" role="navigation">
 			<div class="container-fluid">

@@ -6,8 +6,13 @@ function MidiKeyBoard($insertPoint) {
     var keyArray = {};
 
     var key_dbound = 21, key_ubound = 108;
+    var whitekey_width, blackkey_width;
 
-    var keypress = function() {
+    var pressKey = function(id) {
+
+    };
+
+    var releaseKey = function(id) {
 
     };
 
@@ -19,8 +24,8 @@ function MidiKeyBoard($insertPoint) {
         var whiteKeyNum = 0;
         for(var keyId = key_dbound; keyId <= key_ubound; keyId++)
             if (!isBlackKey(keyId)) whiteKeyNum++;
-        var key_width = 98.0 / whiteKeyNum;
-        var blackkey_width = key_width*0.8;
+        whitekey_width = 98.0 / whiteKeyNum;
+        blackkey_width = whitekey_width*0.8;
         for(var keyId = key_dbound; keyId <= key_ubound; keyId++) {
             var $keyDiv = $("<div/>").addClass('piano-keyboard-key');
             var basicCss = {};
@@ -30,7 +35,7 @@ function MidiKeyBoard($insertPoint) {
                 if (keyId != key_dbound)
                     basicCss['marginLeft'] = -blackkey_width/2 + '%';
             } else {
-                basicCss['width'] = key_width + "%";
+                basicCss['width'] = whitekey_width + "%";
                 $keyDiv.addClass('piano-keyboard-whitekey');
                 if (keyId != key_dbound) {
                     if (isBlackKey(keyId-1))
@@ -45,6 +50,9 @@ function MidiKeyBoard($insertPoint) {
     };
 
     return {
-        render: render
+        render: render,
+        getWhiteKeyWidth: function() { return whitekey_width; },
+        getBlackKeyWidth: function() { return blackkey_width; },
+        getKeyElement:    function(keyId) { return keyArray[keyId]; }
     };
 }
