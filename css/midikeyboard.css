@@ -4,6 +4,7 @@
     display: block;
     position: fixed;
     margin: 0 1%;
+    z-index: 1;
 }
 
 .piano-keyboard-bottom {
@@ -18,6 +19,10 @@
     float: left;
 }
 
+.piano-keyboard-key-pressed {
+    background-color: aquamarine !important;
+}
+
 .piano-keyboard-blackkey {
     background-color: #000000;
     height: 60%;
@@ -29,4 +34,11 @@
     height: 100%;
     background-color: #ffffff;
     z-index: 5;
+}
+
+.piano-bar {
+    z-index: -1;
+    position: absolute;
+    border: 1px solid black;
+    background-color: aquamarine;
 }

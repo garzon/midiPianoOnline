@@ -4,16 +4,69 @@ function MidiKeyBoard($insertPoint) {
         5: false, 6: true, 7: false, 8: true, 9: false, 10: true, 11:false
     };
     var keyArray = {};
+    var barArray = {};
+
+    var indexBar = function(channelId, note, absoluteTime) {
+        return channelId + '-' + note + '-' + absoluteTime;
+    };
 
     var key_dbound = 21, key_ubound = 108;
     var whitekey_width, blackkey_width;
 
-    var pressKey = function(id) {
+    var screen_time = 3;
+
+    var refreshBarView = function() {
 
     };
 
-    var releaseKey = function(id) {
+    var generateBar = function(channelId, note, realAbsoluteTime, realDuringTime, realNowTime) {
+        var index = indexBar(channelId, note, realAbsoluteTime);
+        if(barArray[index]) return;
 
+        if(realDuringTime <= 0) realDuringTime = 0.01;  // a short bar
+
+        var $ele = $("<div/>");
+        barArray[index] = $ele;
+        var $key = keyArray[note];
+
+        var screen_path = getPosition($insertPoint.get(0)).top;
+        var velocity = screen_path / screen_time;
+        var height = Math.round(realDuringTime * velocity);
+
+        var toTopTime = realAbsoluteTime-screen_time-realNowTime+realDuringTime;
+        var deleteTime = (realAbsoluteTime+realDuringTime-realNowTime)*1000;
+
+        $ele.css({
+            width: (isBlackKey(note) ? blackkey_width : whitekey_width) + "%",
+            left: (getPosition($key.get(0)).left * 100 / innerWidth) + '%',
+            height: height + 'px',
+            top: Math.round(-toTopTime*velocity) + 'px'
+        }).addClass("piano-bar").animate({
+            top: screen_path + 'px'
+        }, deleteTime, 'linear');
+
+        $ele.insertBefore($insertPoint);
+
+        window.setTimeout(function() {
+            if(barArray[index].get(0) == $ele.get(0))
+                barArray[index] = undefined;
+            $ele.remove();
+        }, deleteTime);
+    };
+
+    var pressKey = function(note, autoRelease) {
+        var $ele = keyArray[note];
+        if($ele) $ele.addClass("piano-keyboard-key-pressed");
+        if(autoRelease) {
+            window.setTimeout(function() {
+                releaseKey(note);
+            }, 50);
+        }
+    };
+
+    var releaseKey = function(note) {
+        var $ele = keyArray[note];
+        if($ele) $ele.removeClass("piano-keyboard-key-pressed");
     };
 
     var isBlackKey = function(id) {
@@ -51,8 +104,11 @@ function MidiKeyBoard($insertPoint) {
 
     return {
         render: render,
-        getWhiteKeyWidth: function() { return whitekey_width; },
-        getBlackKeyWidth: function() { return blackkey_width; },
-        getKeyElement:    function(keyId) { return keyArray[keyId]; }
+        generateBar: generateBar,
+        refreshBarView: refreshBarView,
+        screen_time: screen_time,
+        pressKey: pressKey,
+        releaseKey: releaseKey,
+        getKeyElement: function(keyId) { return keyArray[keyId]; }
     };
 }

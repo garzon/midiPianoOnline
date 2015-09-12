@@ -46,11 +46,15 @@ function mixin_header($pageTitle, $nav_tab, $cssPathArr = [], $extra_msg = '', $
 <body>
 	<x-webmidirequestaccess sysex="false" input="true" output="true"></x-webmidirequestaccess>
 	<div class="row">
-		<nav class="navbar navbar-default" role="navigation">
-			<div class="container-fluid">
-				...
-			</div>
-		</nav>
+		<?
+			if($nav_tab != 'player') {
+				require_once(ROOT . '/mixins/navbar.php');
+				mixin_navbar();
+			} else {
+				require_once(ROOT . '/mixins/player_navbar.php');
+				mixin_player_navbar();
+			}
+		?>
 	</div>
 
 	<?

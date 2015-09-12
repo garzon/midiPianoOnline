@@ -3,6 +3,8 @@ function MidiFileReader(raw_data) {
 
     var midiFileObj = MidiFile(raw_data);
 
+    midiFileObj.totalTicks = 0;
+
     // calculate absoluteTick for each event and lastTime for each noteOn event
     var lastNoteOnTickAt = {};
     function noteIdx(channel, note) { return channel * 0x100 + note; }
@@ -29,6 +31,7 @@ function MidiFileReader(raw_data) {
                     break;
             }
         }
+        midiFileObj.totalTicks = Math.max(midiFileObj.totalTicks, absoluteTicks);
     }
     for(var k in lastNoteOnTickAt) {
         var lastinfo = lastNoteOnTickAt[k];

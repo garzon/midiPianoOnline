@@ -1,6 +1,6 @@
-function MidiOutput() {
+function WebAudioController() {
     // singleton
-    if(MidiOutput._instance !== null) return MidiOutput._instance;
+    if(WebAudioController._instance !== null) return WebAudioController._instance;
 
     var AudioContext = AudioContext || webkitAudioContext; // for ios/safari
     this.context = new AudioContext();
@@ -32,42 +32,37 @@ function MidiOutput() {
 
     this._objs = {};
 
-    MidiOutput._instance = this;
+    WebAudioController._instance = this;
 }
 
-MidiOutput._instance = null;
+WebAudioController._instance = null;
 
-MidiOutput.instance = function() {
-    if(MidiOutput._instance !== null) return MidiOutput._instance;
-    return new MidiOutput();
+WebAudioController.instance = function() {
+    if(WebAudioController._instance !== null) return WebAudioController._instance;
+    return new WebAudioController();
 };
 
-MidiOutput.noteOn = function(channelId, note, velocity, deltatime) {
-    MidiOutput.instance().noteOn(channelId, note, velocity, deltatime);
+WebAudioController.noteOn = function(channelId, note, velocity, deltatime) {
+    WebAudioController.instance().noteOn(channelId, note, velocity, deltatime);
 };
 
-MidiOutput.noteOff = function(channelId, note) {
-    MidiOutput.instance().noteOff(channelId, note);
+WebAudioController.noteOff = function(channelId, note) {
+    WebAudioController.instance().noteOff(channelId, note);
 };
 
-MidiOutput.prototype._indexNote = function(channelId, note) {
+WebAudioController.prototype._indexNote = function(channelId, note) {
     return channelId + 0x100 * note;
 };
 
-MidiOutput.prototype.noteOn = function(channelId, note, velocity, deltatime) {
-    if(deltatime == 0) deltatime = -1;
+WebAudioController.prototype.noteOn = function(channelId, note, velocity, deltatime) {
 
     if(this._objs[this._indexNote(channelId, note)]) this.noteOff(channelId, note);
 
-    var oscillator = this.context.createOscillator();
-    var envelope = this.context.createGain();
-    oscillator.frequency.value = frequencyFromNoteNumber(note);
-    envelope.gain.value = velocity / 256.0;
-    oscillator.connect(envelope);
-    envelope.connect(this.context.destination);
-    oscillator.start();
+    var node = new WebAudioPianoNode(this.context, note, velocity / 128.0);
+    node.connect(this.context.destination);
+    node.start();
 
-    this._objs[this._indexNote(channelId, note)] = [oscillator, envelope];
+    this._objs[this._indexNote(channelId, note)] = node;
 
     if(deltatime == -1) {
         var self = this;
@@ -75,11 +70,10 @@ MidiOutput.prototype.noteOn = function(channelId, note, velocity, deltatime) {
     }
 };
 
-MidiOutput.prototype.noteOff = function(channelId, note) {
+WebAudioController.prototype.noteOff = function(channelId, note) {
     if(this._objs[this._indexNote(channelId, note)]) {
-        this._objs[this._indexNote(channelId, note)][0].stop();
-        this._objs[this._indexNote(channelId, note)][0].disconnect();
-        this._objs[this._indexNote(channelId, note)][1].disconnect();
+        this._objs[this._indexNote(channelId, note)].stop();
+        this._objs[this._indexNote(channelId, note)].disconnect();
         this._objs[this._indexNote(channelId, note)] = undefined;
     }
 };

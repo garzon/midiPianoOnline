@@ -1,25 +1,16 @@
-MidiNoteBarController = function(Channel) {
-    // singleton
-    if(MidiNoteBarController._instance !== null) return MidiNoteBarController._instance;
-
-    if(typeof Channel == 'undefined') Channel = MidiChannel;
+MidiNoteBarController = function(midiKeyboardObj, Channel) {
+    this.midiKeyboardObj = midiKeyboardObj;
+    if(typeof Channel == 'undefined') Channel = WebAudioChannel;
 
     this.midiFileObj = null;
+    this.tick = 0;
+    this.totalTicks = 1;
 
     this.channels = [];
     for(var i = 0; i < 16; i++) {
         this.channels[i] = new Channel(i);
     }
-
-    MidiNoteBarController._instance = this;
 };
-
-MidiNoteBarController._instance = null;
-
-MidiNoteBarController.instance = function() {
-    if(MidiNoteBarController._instance !== null) return MidiNoteBarController._instance;
-    return new MidiNoteBarController(MidiChannel);
-}
 
 MidiNoteBarController.prototype._findNextDeltatime = function() {
     var nextDeltatime = 20;
@@ -37,7 +28,7 @@ MidiNoteBarController.prototype._playLoop = function(deltatime) {
         if(this.tracksCurrentEvent[i]+1 == this.midiFileObj.tracks[i].length) continue;
         finishFlag = false;
         while(this.tracksCurrentEvent[i]+1 < this.midiFileObj.tracks[i].length &&
-        this.midiFileObj.tracks[i][this.tracksCurrentEvent[i]+1].absoluteTicks <= this.tick) {
+              this.midiFileObj.tracks[i][this.tracksCurrentEvent[i]+1].absoluteTicks <= this.tick) {
             this.tracksCurrentEvent[i] += 1;
             this.handleEvent(this.midiFileObj.tracks[i][this.tracksCurrentEvent[i]]);
         }
@@ -47,21 +38,55 @@ MidiNoteBarController.prototype._playLoop = function(deltatime) {
         console.log('finish');
         return;
     }
+
+    // show the bars
+    var findEventToShowInTicks = this.msToTicks((this.midiKeyboardObj.screen_time + 1)*1000) + this.tick;
+    var realNowTime = this.ticksToMs(this.tick)/1000;
+    for(var i=0; i<this.midiFileObj.tracks.length; i++) {
+        var evtPointer = this.tracksCurrentEvent[i]+1;
+        if(evtPointer == this.midiFileObj.tracks[i].length) continue;
+        while(evtPointer < this.midiFileObj.tracks[i].length &&
+              this.midiFileObj.tracks[i][evtPointer].absoluteTicks <= findEventToShowInTicks) {
+            var event = this.midiFileObj.tracks[i][evtPointer];
+            if(event.subtype == 'noteOn') {
+                this.midiKeyboardObj.generateBar(event.channel, event.noteNumber,
+                    this.ticksToMs(event.absoluteTicks)/1000, this.ticksToMs(event.lastTime)/1000, realNowTime);
+            }
+            evtPointer++;
+        }
+    }
+
     this._setPlayLoop(this._findNextDeltatime());
 };
 
 MidiNoteBarController.prototype._setPlayLoop = function(deltatime) {
     if(this.pause) return;
-    var msPerTick = 60000 / (this.ticksPerBeat * this.beatsPerMinute);
 
-    // use string type to gc
-    window.setTimeout('MidiNoteBarController.instance()._playLoop(' + deltatime + ');', deltatime * msPerTick);
+    // write in this form in order to activate gc
+    var playLoopCallback = (function(self, dtime) {
+        return function() {
+            self._playLoop(dtime);
+        };
+    })(this, deltatime);
+
+    window.setTimeout(playLoopCallback, this.ticksToMs(deltatime));
+};
+
+MidiNoteBarController.prototype.ticksToMs = function(ticks) {
+    var msPerTick = 60000 / (this.ticksPerBeat * this.beatsPerMinute);
+    return msPerTick * ticks;
+};
+
+MidiNoteBarController.prototype.msToTicks = function(ms) {
+    var msPerTick = 60000 / (this.ticksPerBeat * this.beatsPerMinute);
+    return ms / msPerTick;
 };
 
 MidiNoteBarController.prototype.open = function(midiFileObj) {
     this.midiFileObj = midiFileObj;
     this.beatsPerMinute = 120;
     this.ticksPerBeat = midiFileObj.header.ticksPerBeat;
+    this.totalTicks = midiFileObj.totalTicks;
     this.resetCursor();
 };
 
@@ -91,9 +116,11 @@ MidiNoteBarController.prototype.handleEvent = function(event, isFromView) {
             switch (event.subtype) {
                 case 'noteOn':
                     this.channels[event.channel].noteOn(event.noteNumber, event.velocity, event.lastTime);
+                    this.midiKeyboardObj.pressKey(event.noteNumber, event.lastTime <= 0);
                     break;
                 case 'noteOff':
                     this.channels[event.channel].noteOff(event.noteNumber, event.velocity);
+                    this.midiKeyboardObj.releaseKey(event.noteNumber);
                     break;
                 case 'programChange':
                     //console.log('program change to ' + event.programNumber);
