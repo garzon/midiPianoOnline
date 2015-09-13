@@ -1,16 +1,21 @@
 function WebAudioInstructmentNode(context, note, volume) {
-    this.envelopes = [];
     this.oscillators = [];
+    this.envelopes = [];
 
     for(var i in this.synth.data) {
+        var freq = i * frequencyFromNoteNumber(note);
+
         var oscillator = context.createOscillator();
         var envelope = context.createGain();
-        oscillator.frequency.value = frequencyFromNoteNumber(note) * i;
-        envelope.gain.value = volume * this.synth.data[i];
+
+        oscillator.frequency.value = freq;
+        envelope.gain.value = volume * this.synth.data[i][0];
+
         oscillator.connect(envelope);
 
         this.envelopes = this.envelopes.concat(envelope);
         this.oscillators = this.oscillators.concat(oscillator);
+
     }
 }
 
