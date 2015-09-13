@@ -13,6 +13,8 @@ define(function(require) {
         for(var i = 0; i < 16; i++) {
             this.channels[i] = new Channel(i);
         }
+
+        this.$this = $(this);
     };
 
     MidiController.prototype._findNextDeltatime = function() {
@@ -44,6 +46,8 @@ define(function(require) {
     };
 
     MidiController.prototype._playLoop = function(deltatime, msDelay) {
+        this.$this.trigger('evt_play:before');
+
         if(typeof msDelay == 'undefined') msDelay = 0;
         this.tick += deltatime;
         var finishFlag = true;
@@ -64,10 +68,12 @@ define(function(require) {
 
         this._createBarInView();
         this._setPlayLoop(this._findNextDeltatime(), msDelay);
+
+        this.$this.trigger('evt_play:after');
     };
 
     MidiController.prototype._setPlayLoop = function(deltatime, msDelay) {
-        if(this.pause) return;
+        if(this._pause) return;
 
         var date = new Date();
         var lastTime = date.getTime();
@@ -101,17 +107,19 @@ define(function(require) {
         this.ticksPerBeat = midiFileObj.header.ticksPerBeat;
         this.totalTicks = midiFileObj.totalTicks;
         this.resetCursor();
+        this.$this.trigger('evt_load');
     };
 
     MidiController.prototype.resetCursor = function() {
         if (!this.midiFileObj) return;
-        this.pause = true;
+        this._pause = true;
         this.tick = 0;
         this.recordMode = false;
         this.tracksCurrentEvent = [];
         for(var i=0; i<this.midiFileObj.tracks.length; i++) {
             this.tracksCurrentEvent = this.tracksCurrentEvent.concat(-1);
         }
+        this.$this.trigger('evt_reset');
     };
 
     MidiController.prototype.handleEvent = function(event, isFromView) {
@@ -142,12 +150,19 @@ define(function(require) {
                 }
                 break;
         }
+        this.$this.trigger('evt_event', [event, isFromView]);
     };
 
     MidiController.prototype.play = function() {
         if (!this.midiFileObj) return;
-        this.pause = false;
+        this._pause = false;
         this._playLoop(this._findNextDeltatime());
+        this.$this.trigger('evt_play');
+    };
+
+    MidiController.prototype.pause = function() {
+        this._pause = true;
+        this.$this.trigger('evt_pause');
     };
 
     return MidiController;

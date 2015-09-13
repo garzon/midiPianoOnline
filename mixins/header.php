@@ -15,8 +15,11 @@ function mixin_header($pageTitle, $nav_tab, $cssPathArr = [], $extra_msg = '', $
 	<script src="<?= DOMAIN ?>/js/util.js"></script>
 
 	<script src="<?= DOMAIN ?>/bower_components/webcomponentsjs/webcomponents.min.js"></script>
+	<script src="<?= DOMAIN ?>/bower_components/angular-ui/build/angular-ui.min.js"></script>
 	<link rel="import" href="<?= DOMAIN ?>/bower_components/x-webmidi/x-webmidirequestaccess.html">
 
+	<link rel="stylesheet" href="<?= DOMAIN ?>/bower_components/jquery-ui/themes/smoothness/jquery-ui.min.css">
+	<link rel="stylesheet" href="<?= DOMAIN ?>/bower_components/angular-ui/build/angular-ui.min.css">
 	<link rel="stylesheet" href="<?= DOMAIN ?>/bower_components/bootstrap/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="<?= DOMAIN ?>/css/base.css">
 	<? foreach ($cssPathArr as $cssFile) { ?>
