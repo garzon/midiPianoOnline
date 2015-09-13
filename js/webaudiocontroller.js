@@ -58,7 +58,7 @@ WebAudioController.prototype.noteOn = function(channelId, note, velocity, deltat
 
     if(this._objs[this._indexNote(channelId, note)]) this.noteOff(channelId, note);
 
-    var node = new WebAudioPianoNode(this.context, note, velocity / 128.0);
+    var node = WebAudioPianoNode(this.context, note, velocity / 128.0);
     node.connect(this.context.destination);
     node.start();
 

@@ -51,3 +51,12 @@ function mySetTimeout(callback, countdown) {
     };
     window.setTimeout(realCallback, countdown);
 }
+
+function New(f, callback) {
+    return function () {
+        var n = { '__proto__': f.prototype };
+        if(typeof callback == 'function') callback.apply(n);
+        f.apply(n, arguments);
+        return n;
+    };
+}
