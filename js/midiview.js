@@ -19,7 +19,7 @@ define(function() {
             barArray = [];
         };
 
-        var generateBar = function (channelId, note, realAbsoluteTime, realDuringTime, realNowTime, barId) {
+        var generateBar = function (channelId, note, realAbsoluteTime, realDuringTime, realNowTime, barId, isPause) {
             if (realNowTime >= realAbsoluteTime + realDuringTime) return;
             var index = barId;
             if (barArray[index]) return;
@@ -44,17 +44,21 @@ define(function() {
                 left: (getPosition($key.get(0)).left * 100 / innerWidth) + '%',
                 height: height + 'px',
                 top: top + 'px'
-            }).addClass("piano-bar").animate({
-                top: screen_path + 'px'
-            }, deleteTime, 'linear');
+            }).addClass("piano-bar");
+
+            if(!isPause)
+                $ele.animate({
+                    top: screen_path + 'px'
+                }, deleteTime, 'linear');
 
             $ele.insertBefore($insertPoint);
 
-            window.mySetTimeout(function () {
-                if (barArray[index] && barArray[index].get(0) == $ele.get(0))
-                    barArray[index] = undefined;
-                $ele.remove();
-            }, deleteTime);
+            if(!isPause)
+                window.mySetTimeout(function () {
+                    if (barArray[index] && barArray[index].get(0) == $ele.get(0))
+                        barArray[index] = undefined;
+                    $ele.remove();
+                }, deleteTime);
         };
 
         var pressKey = function (note, autoRelease) {

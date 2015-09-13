@@ -48,15 +48,14 @@ define(function(require) {
         var findEventToShowInTicks = this.msToTicks((this.midiKeyboardObj.screen_time + 0.5)*1000) + this.tick;
         var realNowTime = this.ticksToMs(this.tick)/1000;
         for(var i=0; i<this.midiFileObj.tracks.length; i++) {
-            var evtPointer = this.tracksCurrentEvent[i]+1;
-            if(evtPointer == this.midiFileObj.tracks[i].length) continue;
+            var evtPointer = this.tracksCurrentEvent[i];
             while(evtPointer < this.midiFileObj.tracks[i].length &&
             this.midiFileObj.tracks[i][evtPointer].absoluteTicks <= findEventToShowInTicks) {
                 var event = this.midiFileObj.tracks[i][evtPointer];
                 if(event.subtype == 'noteOn') {
                     var barId = event.channel + '-' + event.noteNumber + '-' + event.absoluteTicks;
                     this.midiKeyboardObj.generateBar(event.channel, event.noteNumber,
-                        this.ticksToMs(event.absoluteTicks)/1000, this.ticksToMs(event.lastTime)/1000, realNowTime, barId);
+                        this.ticksToMs(event.absoluteTicks)/1000, this.ticksToMs(event.lastTime)/1000, realNowTime, barId, this._pause);
                 }
                 evtPointer++;
             }
@@ -64,6 +63,10 @@ define(function(require) {
     };
 
     MidiController.prototype._playLoop = function(deltatime, msDelay) {
+        if(msDelay > 300) {
+            this.pause();
+            this.midiKeyboardObj.refreshBarView();
+        }
         this.$this.trigger('evt_play:before');
 
         if(typeof msDelay == 'undefined') msDelay = 0;
@@ -184,6 +187,7 @@ define(function(require) {
         if (!this.midiFileObj) return;
         this._pause = false;
         this._playLoop(this._findNextDeltatime());
+        this.midiKeyboardObj.refreshBarView();
         this.$this.trigger('evt_play');
     };
 

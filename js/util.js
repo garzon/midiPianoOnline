@@ -94,5 +94,4 @@ function binarySearch(arr, dbound, ubound, rangeDBound, rangeUBound) {
     }
     if (arr[m] < dbound) return binarySearch(arr, dbound, ubound, m+1, rangeUBound);
     return binarySearch(arr, dbound, ubound, rangeDBound, m-1);
-
 }
