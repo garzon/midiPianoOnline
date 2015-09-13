@@ -12,6 +12,7 @@ define(function() {
 
             oscillator.frequency.value = freq;
             envelope.gain.value = volume * this.synth.data[i][0];
+            oscillator.type = 'triangle';
 
             oscillator.connect(envelope);
 

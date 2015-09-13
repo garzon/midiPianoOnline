@@ -45,6 +45,10 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 				$progressBar.on('slidestart', function() {
 					controller.pause();
 				});
+				$progressBar.on('slide', function() {
+					var tick = $progressBar.slider('option', 'value');
+					controller.sliding(tick);
+				});
 				$progressBar.on('slidestop', function() {
 					var tick = $progressBar.slider('option', 'value');
 					controller.setCursor(tick);

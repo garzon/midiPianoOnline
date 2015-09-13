@@ -152,6 +152,24 @@ define(function(require) {
         if(!tmp_stat) this.play();
     };
 
+    MidiController.prototype.sliding = function(tick) {
+        this.tick = tick;
+        this.midiKeyboardObj.refreshBarView();
+        this._resetTracksCurrentEvent();
+        this.mute();
+
+        for(var i=0; i<this.midiFileObj.tracks.length; i++) {
+            if(this.tracksCurrentEvent[i]+1 == this.midiFileObj.tracks[i].length) continue;
+            while(this.tracksCurrentEvent[i]+1 < this.midiFileObj.tracks[i].length &&
+                  Math.abs(this.midiFileObj.tracks[i][this.tracksCurrentEvent[i]+1].absoluteTicks - this.tick) < 500) {
+                this.tracksCurrentEvent[i] += 1;
+                this.handleEvent(this.midiFileObj.tracks[i][this.tracksCurrentEvent[i]]);
+            }
+        }
+
+        this._createBarInView();
+    };
+
     MidiController.prototype.handleEvent = function(event, isFromView) {
         if(isFromView && this.recordMode) {
             // TODO
