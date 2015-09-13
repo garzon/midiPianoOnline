@@ -1,39 +1,43 @@
-function WebAudioInstructmentNode(context, note, volume) {
-    this.oscillators = [];
-    this.envelopes = [];
+define(function() {
 
-    for(var i in this.synth.data) {
-        var freq = i * frequencyFromNoteNumber(note);
+    function WebAudioInstructmentNode(context, note, volume) {
+        this.oscillators = [];
+        this.envelopes = [];
 
-        var oscillator = context.createOscillator();
-        var envelope = context.createGain();
+        for (var i in this.synth.data) {
+            var freq = i * frequencyFromNoteNumber(note);
 
-        oscillator.frequency.value = freq;
-        envelope.gain.value = volume * this.synth.data[i][0];
+            var oscillator = context.createOscillator();
+            var envelope = context.createGain();
 
-        oscillator.connect(envelope);
+            oscillator.frequency.value = freq;
+            envelope.gain.value = volume * this.synth.data[i][0];
 
-        this.envelopes = this.envelopes.concat(envelope);
-        this.oscillators = this.oscillators.concat(oscillator);
+            oscillator.connect(envelope);
 
+            this.envelopes = this.envelopes.concat(envelope);
+            this.oscillators = this.oscillators.concat(oscillator);
+        }
     }
-}
 
-WebAudioInstructmentNode.prototype.connect = function(webAudioNode) {
-    for(var i in this.envelopes) this.envelopes[i].connect(webAudioNode);
-};
+    WebAudioInstructmentNode.prototype.connect = function (webAudioNode) {
+        for (var i in this.envelopes) this.envelopes[i].connect(webAudioNode);
+    };
 
-WebAudioInstructmentNode.prototype.start = function(when) {
-    if(typeof when == 'undefined') when = 0;
-    for(var i in this.oscillators) this.oscillators[i].start(when);
-};
+    WebAudioInstructmentNode.prototype.start = function (when) {
+        if (typeof when == 'undefined') when = 0;
+        for (var i in this.oscillators) this.oscillators[i].start(when);
+    };
 
-WebAudioInstructmentNode.prototype.stop = function(when) {
-    if(typeof when == 'undefined') when = 0;
-    for(var i in this.oscillators) this.oscillators[i].stop(when);
-};
+    WebAudioInstructmentNode.prototype.stop = function (when) {
+        if (typeof when == 'undefined') when = 0;
+        for (var i in this.oscillators) this.oscillators[i].stop(when);
+    };
 
-WebAudioInstructmentNode.prototype.disconnect = function() {
-    for(var i in this.oscillators) this.oscillators[i].disconnect();
-    for(var i in this.envelopes) this.envelopes[i].disconnect();
-};
+    WebAudioInstructmentNode.prototype.disconnect = function () {
+        for (var i in this.oscillators) this.oscillators[i].disconnect();
+        for (var i in this.envelopes) this.envelopes[i].disconnect();
+    };
+
+    return WebAudioInstructmentNode;
+});

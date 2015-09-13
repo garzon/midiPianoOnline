@@ -11,6 +11,7 @@ function mixin_header($pageTitle, $nav_tab, $cssPathArr = [], $extra_msg = '', $
 	<script src="<?= DOMAIN ?>/bower_components/jquery/dist/jquery.min.js"></script>
 	<script src="<?= DOMAIN ?>/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 	<script src="<?= DOMAIN ?>/bower_components/angular/angular.min.js"></script>
+	<script src="<?= DOMAIN ?>/bower_components/jquery-ui/jquery-ui.min.js"></script>
 	<script src="<?= DOMAIN ?>/js/util.js"></script>
 
 	<script src="<?= DOMAIN ?>/bower_components/webcomponentsjs/webcomponents.min.js"></script>
@@ -41,6 +42,24 @@ function mixin_header($pageTitle, $nav_tab, $cssPathArr = [], $extra_msg = '', $
 			--paper-tabs-selection-bar-color: rgb(43, 162, 226);
 		}
 	</style>
+
+	<script src="<?= DOMAIN ?>/bower_components/requirejs/require.js"></script>
+	<script>
+		require.config({
+			paths : {
+				"MidiController" : ["<?= DOMAIN ?>/js/midicontroller"],
+				"MidiData" : ["<?= DOMAIN ?>/js/mididata"],
+				"MidiView" : ["<?= DOMAIN ?>/js/midiview"],
+				"WebAudioChannel" : ["<?= DOMAIN ?>/js/webaudiochannel"],
+				"WebAudioController" : ["<?= DOMAIN ?>/js/webaudiocontroller"],
+				"WebAudioInstructmentNode" : ["<?= DOMAIN ?>/js/webaudioinstructmentnode"],
+				"WebAudioMuyuNode" : ["<?= DOMAIN ?>/js/webaudiomuyunode"],
+				"WebAudioPianoNode" : ["<?= DOMAIN ?>/js/webaudiopianonode"],
+				"WebAudioSynth" : ["<?= DOMAIN ?>/js/webaudiosynth"],
+				"WebAudioViolinNode" : ["<?= DOMAIN ?>/js/webaudioviolinnode"]
+			}
+		});
+	</script>
 </head>
 
 <body>
