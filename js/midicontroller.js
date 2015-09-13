@@ -1,4 +1,4 @@
-MidiNoteBarController = function(midiKeyboardObj, Channel) {
+MidiController = function(midiKeyboardObj, Channel) {
     this.midiKeyboardObj = midiKeyboardObj;
     if(typeof Channel == 'undefined') Channel = WebAudioChannel;
 
@@ -12,7 +12,7 @@ MidiNoteBarController = function(midiKeyboardObj, Channel) {
     }
 };
 
-MidiNoteBarController.prototype._findNextDeltatime = function() {
+MidiController.prototype._findNextDeltatime = function() {
     var nextDeltatime = 20;
     for(var i=0; i<this.midiFileObj.tracks.length; i++) {
         if(this.tracksCurrentEvent[i]+1 == this.midiFileObj.tracks[i].length) continue;
@@ -21,7 +21,7 @@ MidiNoteBarController.prototype._findNextDeltatime = function() {
     return nextDeltatime;
 };
 
-MidiNoteBarController.prototype._createBarInView = function() {
+MidiController.prototype._createBarInView = function() {
     var findEventToShowInTicks = this.msToTicks((this.midiKeyboardObj.screen_time + 0.5)*1000) + this.tick;
     var realNowTime = this.ticksToMs(this.tick)/1000;
     for(var i=0; i<this.midiFileObj.tracks.length; i++) {
@@ -40,7 +40,7 @@ MidiNoteBarController.prototype._createBarInView = function() {
     }
 };
 
-MidiNoteBarController.prototype._playLoop = function(deltatime, msDelay) {
+MidiController.prototype._playLoop = function(deltatime, msDelay) {
     if(typeof msDelay == 'undefined') msDelay = 0;
     this.tick += deltatime;
     var finishFlag = true;
@@ -63,7 +63,7 @@ MidiNoteBarController.prototype._playLoop = function(deltatime, msDelay) {
     this._setPlayLoop(this._findNextDeltatime(), msDelay);
 };
 
-MidiNoteBarController.prototype._setPlayLoop = function(deltatime, msDelay) {
+MidiController.prototype._setPlayLoop = function(deltatime, msDelay) {
     if(this.pause) return;
 
     var date = new Date();
@@ -82,17 +82,17 @@ MidiNoteBarController.prototype._setPlayLoop = function(deltatime, msDelay) {
     window.setTimeout(playLoopCallback, countdown);
 };
 
-MidiNoteBarController.prototype.ticksToMs = function(ticks) {
+MidiController.prototype.ticksToMs = function(ticks) {
     var msPerTick = 60000 / (this.ticksPerBeat * this.beatsPerMinute);
     return msPerTick * ticks;
 };
 
-MidiNoteBarController.prototype.msToTicks = function(ms) {
+MidiController.prototype.msToTicks = function(ms) {
     var msPerTick = 60000 / (this.ticksPerBeat * this.beatsPerMinute);
     return ms / msPerTick;
 };
 
-MidiNoteBarController.prototype.load = function(midiFileObj) {
+MidiController.prototype.load = function(midiFileObj) {
     this.midiFileObj = midiFileObj;
     this.beatsPerMinute = 120;
     this.ticksPerBeat = midiFileObj.header.ticksPerBeat;
@@ -100,7 +100,7 @@ MidiNoteBarController.prototype.load = function(midiFileObj) {
     this.resetCursor();
 };
 
-MidiNoteBarController.prototype.resetCursor = function() {
+MidiController.prototype.resetCursor = function() {
     if (!this.midiFileObj) return;
     this.pause = true;
     this.tick = 0;
@@ -111,7 +111,7 @@ MidiNoteBarController.prototype.resetCursor = function() {
     }
 };
 
-MidiNoteBarController.prototype.handleEvent = function(event, isFromView) {
+MidiController.prototype.handleEvent = function(event, isFromView) {
     if(isFromView && this.recordMode) {
         // TODO
     }
@@ -141,7 +141,7 @@ MidiNoteBarController.prototype.handleEvent = function(event, isFromView) {
     }
 };
 
-MidiNoteBarController.prototype.play = function() {
+MidiController.prototype.play = function() {
     if (!this.midiFileObj) return;
     this.pause = false;
     this._playLoop(this._findNextDeltatime());

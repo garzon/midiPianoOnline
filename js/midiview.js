@@ -1,4 +1,4 @@
-function MidiKeyBoard($insertPoint) {
+function MidiView($insertPoint) {
     var isBasicBlackKey = {
         0: false, 1: true, 2: false, 3: true, 4: false,
         5: false, 6: true, 7: false, 8: true, 9: false, 10: true, 11:false
