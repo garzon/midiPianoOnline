@@ -17,6 +17,24 @@ define(function(require) {
         this.$this = $(this);
     };
 
+    MidiController.prototype._findTrackCurrentEventIdAtTick = function(trackId) {
+        var track = this.midiFileObj.tracks[trackId];
+        var haystack = [];
+        for(var i in track) {
+            haystack = haystack.concat(track[i].absoluteTicks);
+        }
+        var idx = binarySearch(haystack, this.tick+1, this.totalTicks, 0, haystack.length-1);
+        return idx === -1 ? haystack.length-1 : idx-1;
+    };
+
+    MidiController.prototype._resetTracksCurrentEvent = function() {
+        this.tracksCurrentEvent = [];
+        for(var i=0; i<this.midiFileObj.tracks.length; i++) {
+            this.tracksCurrentEvent =
+                this.tracksCurrentEvent.concat(this._findTrackCurrentEventIdAtTick(i));
+        }
+    };
+
     MidiController.prototype._findNextDeltatime = function() {
         var nextDeltatime = 20;
         for(var i=0; i<this.midiFileObj.tracks.length; i++) {
@@ -122,6 +140,15 @@ define(function(require) {
         this.$this.trigger('evt_reset');
     };
 
+    MidiController.prototype.setCursor = function(tick) {
+        var tmp_stat = this._pause;
+        this._pause = true;
+        this.tick = tick;
+        this.midiKeyboardObj.refreshBarView();
+        this._resetTracksCurrentEvent();
+        if(!tmp_stat) this.play();
+    };
+
     MidiController.prototype.handleEvent = function(event, isFromView) {
         if(isFromView && this.recordMode) {
             // TODO
@@ -162,7 +189,14 @@ define(function(require) {
 
     MidiController.prototype.pause = function() {
         this._pause = true;
+        this.mute();
         this.$this.trigger('evt_pause');
+    };
+
+    MidiController.prototype.mute = function() {
+        for(var i in this.channels) {
+            this.channels[i].mute();
+        }
     };
 
     return MidiController;

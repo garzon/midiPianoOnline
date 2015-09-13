@@ -42,6 +42,14 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 						value: this.tick
 					});
 				});
+				$progressBar.on('slidestart', function() {
+					controller.pause();
+				});
+				$progressBar.on('slidestop', function() {
+					var tick = $progressBar.slider('option', 'value');
+					controller.setCursor(tick);
+					controller.play();
+				});
 				MidiData.loadRemoteMidi('/midiPianoOnline/attachments/aLIEz.mid', function(midiDataObj) {
 					controller.load(midiDataObj);
 					controller.play();

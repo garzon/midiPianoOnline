@@ -72,3 +72,27 @@ function debouncer(func, timeout) {
         }, timeout);
     };
 }
+
+function inRange(item, dbound, ubound) {
+    return dbound <= item && item <= ubound;
+}
+
+function binarySearch(arr, dbound, ubound, rangeDBound, rangeUBound) {
+    if (rangeUBound - rangeDBound === 1) {
+        if (inRange(arr[rangeDBound], dbound, ubound)) return rangeDBound;
+        if (inRange(arr[rangeUBound], dbound, ubound)) return rangeUBound;
+        return -1;
+    }
+    if (rangeDBound === rangeUBound) {
+        if (inRange(arr[rangeDBound], dbound, ubound)) return rangeDBound;
+        return -1;
+    }
+    var m = Math.floor((rangeUBound + rangeDBound) / 2);
+    if (inRange(arr[m], dbound, ubound)) {
+        var idx = binarySearch(arr, dbound, ubound, rangeDBound, m-1);
+        if (idx === -1) return m; else return idx;
+    }
+    if (arr[m] < dbound) return binarySearch(arr, dbound, ubound, m+1, rangeUBound);
+    return binarySearch(arr, dbound, ubound, rangeDBound, m-1);
+
+}

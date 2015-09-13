@@ -55,6 +55,10 @@ define(function(require) {
         WebAudioController.instance().noteOff(channelId, note);
     };
 
+    WebAudioController.mute = function(channelId) {
+        WebAudioController.instance().mute(channelId);
+    };
+
     WebAudioController.setInstructmentNode = function(channelId, node) {
         WebAudioController.instance().setInstructmentNode(channelId, node);
     };
@@ -90,6 +94,16 @@ define(function(require) {
             this._objs[this._indexNote(channelId, note)].stop();
             this._objs[this._indexNote(channelId, note)].disconnect();
             this._objs[this._indexNote(channelId, note)] = undefined;
+        }
+    };
+
+    WebAudioController.prototype.mute = function(channelId) {
+        for(var i in this._objs) {
+            if(i % 0x100 == channelId && this._objs[i]) {
+                this._objs[i].stop();
+                this._objs[i].disconnect();
+                this._objs[i] = undefined;
+            }
         }
     };
 

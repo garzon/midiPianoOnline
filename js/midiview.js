@@ -15,6 +15,7 @@ define(function() {
 
         var refreshBarView = function () {
             $(".piano-bar").remove();
+            $(".piano-keyboard-key-pressed").removeClass("piano-keyboard-key-pressed");
             barArray = [];
         };
 

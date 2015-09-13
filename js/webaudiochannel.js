@@ -15,5 +15,9 @@ define(['WebAudioController'], function(WebAudioController) {
 
     };
 
+    WebAudioChannel.prototype.mute = function() {
+        WebAudioController.mute(this.channelId);
+    };
+
     return WebAudioChannel;
 });
