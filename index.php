@@ -34,6 +34,6 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 
 <?php
 require(ROOT . '/mixins/footer.php');
-mixin_footer(['midiview.js', 'mididata.js', 'midicontroller.js', 'webaudioinstructmentnode.js', 'webaudiosynth.js', 'webaudiopianonode.js',
+mixin_footer(['midiview.js', 'mididata.js', 'midicontroller.js', 'webaudioinstructmentnode.js', 'webaudiosynth.js', 'webaudioviolinnode.js', 'webaudiopianonode.js',
 	'webaudiocontroller.js', 'webaudiochannel.js', 'jasmid/midifile.js', 'jasmid/stream.js']);
 ?>

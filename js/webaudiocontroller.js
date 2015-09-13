@@ -1,6 +1,6 @@
 function WebAudioController() {
-    // singleton
-    if(WebAudioController._instance !== null) return WebAudioController._instance;
+    if(WebAudioController._instance !== null)
+        return WebAudioController._instance;
 
     var AudioContext = AudioContext || webkitAudioContext; // for ios/safari
     this.context = new AudioContext();
@@ -31,11 +31,13 @@ function WebAudioController() {
     }
 
     this._objs = {};
-
+    this._nodeAtChannel = {};
     WebAudioController._instance = this;
 }
 
 WebAudioController._instance = null;
+
+WebAudioController.defaultInstructmentNode = WebAudioPianoNode;
 
 WebAudioController.instance = function() {
     if(WebAudioController._instance !== null) return WebAudioController._instance;
@@ -50,15 +52,21 @@ WebAudioController.noteOff = function(channelId, note) {
     WebAudioController.instance().noteOff(channelId, note);
 };
 
+WebAudioController.setInstructmentNode = function(channelId, node) {
+    WebAudioController.instance().setInstructmentNode(channelId, node);
+};
+
 WebAudioController.prototype._indexNote = function(channelId, note) {
     return channelId + 0x100 * note;
 };
 
 WebAudioController.prototype.noteOn = function(channelId, note, velocity, deltatime) {
+    if(!this._nodeAtChannel[channelId])
+        this.setInstructmentNode(channelId, WebAudioController.defaultInstructmentNode);
 
     if(this._objs[this._indexNote(channelId, note)]) this.noteOff(channelId, note);
 
-    var node = WebAudioPianoNode(this.context, note, velocity / 128.0);
+    var node = this._nodeAtChannel[channelId](this.context, note, velocity / 128.0);
     node.connect(this.context.destination);
     node.start();
 
@@ -68,6 +76,10 @@ WebAudioController.prototype.noteOn = function(channelId, note, velocity, deltat
         var self = this;
         window.mySetTimeout(function() { self.noteOff(channelId, note); }, 1000);
     }
+};
+
+WebAudioController.prototype.setInstructmentNode = function(channelId, node) {
+    this._nodeAtChannel[channelId] = node;
 };
 
 WebAudioController.prototype.noteOff = function(channelId, note) {

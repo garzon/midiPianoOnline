@@ -2,9 +2,9 @@ import matplotlib.pyplot as plt
 from scipy.io import wavfile
 from scipy.fftpack import fft
 from pylab import *
-import numpy
+import numpy, sys
 
-fs, data = wavfile.read("./pianosynth.wav")
+fs, data = wavfile.read(sys.argv[1])
 a = data
 b=[(ele/2**8.)*2-1 for ele in a]
 c = fft(b)
