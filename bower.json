@@ -24,6 +24,8 @@
     "bootstrap": "~3.3.5",
     "jquery": "~2.1.4",
     "jquery-ui": "jqueryui#~1.11.4",
-    "x-webmidi": "~0.10.13"
+    "x-webmidi": "~0.10.13",
+    "angular-ui": "~0.4.0",
+    "requirejs": "~2.1.20"
   }
 }

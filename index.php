@@ -58,6 +58,11 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 					controller.load(midiDataObj);
 					controller.play();
 				});
+				window.addEventListener('midiin-event:x-webmidi-input', function(e) {
+					var data = Stream(asciiArray2Binary([0x60].concat(Array.from(e.detail.data))));
+					var event = MidiFile().readEvent(data);
+					controller.handleEvent(event, true);
+				});
 			}
 		);
 	});

@@ -7,7 +7,7 @@ define(function(require) {
 
         var AudioContext = AudioContext || webkitAudioContext; // for ios/safari
         this.context = new AudioContext();
-
+        /*
         if (navigator.requestMIDIAccess) {
             navigator.requestMIDIAccess({
                 sysex: false
@@ -19,19 +19,19 @@ define(function(require) {
         }
 
         function onMIDISuccess(midiAccess) {
-            /*
+
              midi = midiAccess;
              var inputs = midi.inputs.values();
              // loop through all inputs
              for (var input = inputs.next(); input && !input.done; input = inputs.next()) {
-             // listen for midi messages
-             input.value.onmidimessage = onMIDIMessage;
-             // this just lists our inputs in the console
-             listInputs(input);
+                // listen for midi messages
+                input.value.onmidimessage = onMIDIMessage;
+                 // this just lists our inputs in the console
+                 listInputs(input);
              }
              // listen for connect/disconnect message
-             midi.onstatechange = onStateChange;*/
-        }
+             midi.onstatechange = onStateChange;
+        }*/
 
         this._objs = {};
         this._nodeAtChannel = {};

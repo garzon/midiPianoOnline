@@ -95,3 +95,9 @@ function binarySearch(arr, dbound, ubound, rangeDBound, rangeUBound) {
     if (arr[m] < dbound) return binarySearch(arr, dbound, ubound, m+1, rangeUBound);
     return binarySearch(arr, dbound, ubound, rangeDBound, m-1);
 }
+
+function asciiArray2Binary(arr) {
+    var ret = '';
+    for(var i in arr) ret += String.fromCharCode(arr[i]);
+    return string2binary(ret);
+}
