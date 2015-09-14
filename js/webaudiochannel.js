@@ -12,11 +12,15 @@ define(['WebAudioController'], function(WebAudioController) {
     };
 
     WebAudioChannel.prototype.setProgram = function(id) {
-
+        WebAudioController.setInstructmentNode(this.channelId, id);
     };
 
     WebAudioChannel.prototype.mute = function() {
         WebAudioController.mute(this.channelId);
+    };
+
+    WebAudioChannel.setInstructmentSet = function(instructmentSet) {
+        WebAudioController.setInstructmentSet(instructmentSet);
     };
 
     return WebAudioChannel;

@@ -18,12 +18,12 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 		});
 		var $progressBar = $("#playerProgressBar");
 		$progressBar.slider();
-		require(['MidiController', 'WebAudioChannel', 'MidiView', 'MidiData'],
-			function(MidiController, WebAudioChannel, MidiView, MidiData) {
+		require(['MidiController', 'WebAudioInstructmentNode', 'WebMidiInstructmentNode', 'MidiView', 'MidiData'],
+			function(MidiController, WebAudioInstructmentNode, WebMidiInstructmentNode, MidiView, MidiData) {
 				var $keyboard = $(".piano-keyboard");
 				var keyboardObj = MidiView($keyboard);
 				keyboardObj.render();
-				var controller = new MidiController(keyboardObj, WebAudioChannel);
+				var controller = new MidiController(keyboardObj);
 				$(window).resize(function() {
 					controller.pause();
 				});
@@ -63,6 +63,20 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 					var event = MidiFile().readEvent(data);
 					controller.handleEvent(event, true);
 				});
+				var midi_output = $("#x-webmidi-output").get(0);
+				WebMidiInstructmentNode.midi_output = midi_output;
+				window.addEventListener('midioutput-updated:x-webmidi-output', function(event) {
+					console.log(event);
+					if(event.target.outputIdx != "false") {
+						// have chosen a MIDI Output Device
+						console.log('midi output');
+						controller.setInstructmentSet(WebMidiInstructmentNode.instructmentSet);
+					} else {
+						console.log('audio output');
+						controller.setInstructmentSet(WebAudioInstructmentNode.instructmentSet);
+					}
+				});
+				controller.setInstructmentSet(WebAudioInstructmentNode.instructmentSet);
 			}
 		);
 	});

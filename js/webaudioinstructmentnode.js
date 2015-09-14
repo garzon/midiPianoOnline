@@ -1,6 +1,6 @@
 define(function() {
 
-    function WebAudioInstructmentNode(context, note, volume) {
+    function WebAudioInstructmentNode(context, note, volume, channelId) {
         this.oscillators = [];
         this.envelopes = [];
 
@@ -38,6 +38,12 @@ define(function() {
     WebAudioInstructmentNode.prototype.disconnect = function () {
         for (var i in this.oscillators) this.oscillators[i].disconnect();
         for (var i in this.envelopes) this.envelopes[i].disconnect();
+    };
+
+    WebAudioInstructmentNode.instructmentSet = {};
+
+    WebAudioInstructmentNode.registerInstructmentId = function(id, node) {
+        WebAudioInstructmentNode.instructmentSet[id] = node;
     };
 
     return WebAudioInstructmentNode;

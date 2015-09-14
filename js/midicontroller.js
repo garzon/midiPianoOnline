@@ -1,17 +1,18 @@
 define(function(require) {
     var WebAudioChannel = require('WebAudioChannel');
 
-    MidiController = function(midiKeyboardObj, Channel) {
+    MidiController = function(midiKeyboardObj) {
         this.midiKeyboardObj = midiKeyboardObj;
-        if(typeof Channel == 'undefined') Channel = WebAudioChannel;
 
         this.midiFileObj = null;
         this.tick = 0;
         this.totalTicks = 1;
 
         this.channels = [];
+        this.channelInstructmentId = [];
         for(var i = 0; i < 16; i++) {
-            this.channels[i] = new Channel(i);
+            this.channels[i] = new WebAudioChannel(i);
+            this.channelInstructmentId[i] = 0;
         }
 
         this.$this = $(this);
@@ -199,6 +200,24 @@ define(function(require) {
                 break;
         }
         this.$this.trigger('evt_event', [event, isFromView]);
+    };
+
+    MidiController.prototype.setInstructment = function(channelId, instructmentId) {
+        this.channelInstructmentId[channelId] = instructmentId;
+        this.channels[channelId].setProgram(instructmentId);
+    };
+
+    MidiController.prototype.setAllInstructment = function(instructmentId) {
+        for(var i in this.channels) this.setInstructment(i, instructmentId);
+    };
+
+    MidiController.prototype.refreshInstructment = function() {
+        for(var i in this.channels) this.setInstructment(i, this.channelInstructmentId[i]);
+    };
+
+    MidiController.prototype.setInstructmentSet = function(instructmentSet) {
+        WebAudioChannel.setInstructmentSet(instructmentSet);
+        this.refreshInstructment();
     };
 
     MidiController.prototype.play = function() {

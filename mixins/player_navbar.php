@@ -6,8 +6,9 @@ function mixin_player_navbar() {
 		<div class="container-fluid">
 			<div class="progress">
 				<div id="playerProgressBar"></div>
-				<x-webmidiinput id="x-webmidi-input" autoreselect="true"></x-webmidiinput>
 			</div>
+			<x-webmidiinput id="x-webmidi-input" autoreselect="true"></x-webmidiinput>
+			<x-webmidioutput id="x-webmidi-output" autoreselect="true"></x-webmidioutput>
 		</div>
 	</nav>
 <?
