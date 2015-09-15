@@ -60,7 +60,8 @@ function mixin_header($pageTitle, $nav_tab, $cssPathArr = [], $extra_msg = '', $
 				"WebAudioPianoNode" : ["<?= DOMAIN ?>/js/webaudiopianonode"],
 				"WebAudioSynth" : ["<?= DOMAIN ?>/js/webaudiosynth"],
 				"WebAudioViolinNode" : ["<?= DOMAIN ?>/js/webaudioviolinnode"],
-				"WebMidiInstructmentNode": ["<?= DOMAIN ?>/js/webmidiinstructmentnode"]
+				"WebMidiInstructmentNode": ["<?= DOMAIN ?>/js/webmidiinstructmentnode"],
+				"OutputStream": ["<?= DOMAIN ?>/js/outputstream"]
 			}
 		});
 	</script>

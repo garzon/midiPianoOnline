@@ -1,10 +1,35 @@
-define(function(){
+define(['OutputStream'], function(OutputStream) {
     function MidiData(raw_data) {
         // This is a wrapper of MidiFile in jasmid.
 
         var midiFileObj = MidiFile(raw_data);
 
         var totalTicks = 0;
+
+        function save() {
+            var buffer = OutputStream();
+
+            buffer.writeRaw('MThd');
+            buffer.writeInt32(6);
+            buffer.writeInt16(midiFileObj.header.formatType);
+            buffer.writeInt16(midiFileObj.header.trackCount);
+            buffer.writeInt16(midiFileObj.header.ticksPerBeat);
+
+            for (var i = 0; i < midiFileObj.header.trackCount; i++) {
+                var trackLen = 0;
+                for(var j in midiFileObj.tracks[i]) {
+                    trackLen += midiFileObj.tracks[i][j].rawData.length;
+                }
+
+                buffer.writeRaw('MTrk');
+                buffer.writeInt32(trackLen);
+                for(var j in midiFileObj.tracks[i]) {
+                    buffer.writeRaw(midiFileObj.tracks[i][j].rawData);
+                }
+            }
+
+            return buffer.getOutput();
+        }
 
         // calculate absoluteTick for each event and lastTime for each noteOn event
         var lastNoteOnTickAt = {};
@@ -44,7 +69,8 @@ define(function(){
         return {
             header: midiFileObj.header,
             tracks: midiFileObj.tracks,
-            totalTicks: totalTicks
+            totalTicks: totalTicks,
+            save: save
         };
     }
 
@@ -63,7 +89,7 @@ define(function(){
         fetch.onreadystatechange = function() {
             if(this.readyState == 4 && this.status == 200) {
                 var data = this.responseText || "" ;
-                callback(new MidiData(string2binary(data)));
+                callback(MidiData(string2binary(data)));
             }
         };
         fetch.send();

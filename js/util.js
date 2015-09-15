@@ -101,3 +101,14 @@ function asciiArray2Binary(arr) {
     for(var i in arr) ret += String.fromCharCode(arr[i]);
     return string2binary(ret);
 }
+
+function hexEncode(str) {
+    var ret = '';
+    var list = {0:0, 1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8:8, 9:9, 10:'a', 11:'b', 12:'c', 13:'d', 14:'e', 15:'f'};
+    for(var i in str) {
+        var code = str.charCodeAt(i);
+        ret += list[(code & 0xF0) >> 4];
+        ret += list[code & 0xF];
+    }
+    return ret;
+}

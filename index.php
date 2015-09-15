@@ -55,6 +55,11 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 					controller.play();
 				});
 				MidiData.loadRemoteMidi('/midiPianoOnline/attachments/aLIEz.mid', function(midiDataObj) {
+					file = midiDataObj;
+					var data = midiDataObj.save();
+					$.post('/midiPianoOnline/uploader.php', {data: hexEncode(data)}, function() {
+
+					});
 					controller.load(midiDataObj);
 					controller.play();
 				});
