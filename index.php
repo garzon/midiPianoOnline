@@ -6,9 +6,13 @@ require(ROOT . '/mixins/header.php');
 mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 ?>
 
-<div class="piano-keyboard piano-keyboard-bottom">
 
+<div class="dialog" data-title="test">
+	<div>MIDI Input:<x-webmidiinput id="x-webmidi-input" autoreselect="true"></x-webmidiinput></div>
+	<div>MIDI Output:<x-webmidioutput id="x-webmidi-output" autoreselect="true"></x-webmidioutput></div>
 </div>
+
+<div class="piano-keyboard piano-keyboard-bottom"></div>
 
 <script>
 	$document.ready(function() {
@@ -18,8 +22,8 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 		});
 		var $progressBar = $("#playerProgressBar");
 		$progressBar.slider();
-		require(['MidiController', 'WebAudioInstructmentNode', 'WebMidiInstructmentNode', 'MidiView', 'MidiData'],
-			function(MidiController, WebAudioInstructmentNode, WebMidiInstructmentNode, MidiView, MidiData) {
+		require(['MidiController', 'WebAudioInstructmentNode', 'WebMidiInstructmentNode', 'MidiView', 'MidiData', 'jasmid-MidiFile', 'jasmid-Stream'],
+			function(MidiController, WebAudioInstructmentNode, WebMidiInstructmentNode, MidiView, MidiData, MidiFile, Stream) {
 				var $keyboard = $(".piano-keyboard");
 				var keyboardObj = MidiView($keyboard);
 				keyboardObj.render();
@@ -55,11 +59,8 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 					controller.play();
 				});
 				MidiData.loadRemoteMidi('/midiPianoOnline/attachments/aLIEz.mid', function(midiDataObj) {
-					file = midiDataObj;
-					var data = midiDataObj.save();
-					$.post('/midiPianoOnline/uploader.php', {data: hexEncode(data)}, function() {
-
-					});
+					//var data = midiDataObj.save();
+					//$.post('/midiPianoOnline/uploader.php', {data: hexEncode(data)}, function() {});
 					controller.load(midiDataObj);
 					controller.play();
 				});
@@ -89,5 +90,5 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 
 <?php
 require(ROOT . '/mixins/footer.php');
-mixin_footer(['jasmid/midifile.js', 'jasmid/stream.js']);
+mixin_footer([]);
 ?>

@@ -1,5 +1,8 @@
 define(function(require) {
     var WebAudioChannel = require('WebAudioChannel');
+    var MidiEvent = require('MidiEvent');
+
+    var playMode = 0, recordMode = 1;
 
     MidiController = function(midiKeyboardObj) {
         this.midiKeyboardObj = midiKeyboardObj;
@@ -7,6 +10,7 @@ define(function(require) {
         this.midiFileObj = null;
         this.tick = 0;
         this.totalTicks = 1;
+        this.currentTrack = 0;
 
         this.channels = [];
         this.channelInstructmentId = [];
@@ -82,7 +86,7 @@ define(function(require) {
                 this.handleEvent(this.midiFileObj.tracks[i][this.tracksCurrentEvent[i]]);
             }
         }
-        if(finishFlag) {
+        if(finishFlag && this.mode != recordMode) {
             this.resetCursor();
             console.log('finish');
             return;
@@ -136,7 +140,7 @@ define(function(require) {
         if (!this.midiFileObj) return;
         this._pause = true;
         this.tick = 0;
-        this.recordMode = false;
+        this.mode = playMode;
         this.tracksCurrentEvent = [];
         for(var i=0; i<this.midiFileObj.tracks.length; i++) {
             this.tracksCurrentEvent = this.tracksCurrentEvent.concat(-1);
@@ -172,8 +176,24 @@ define(function(require) {
     };
 
     MidiController.prototype.handleEvent = function(event, isFromView) {
-        if(isFromView && this.recordMode) {
-            // TODO
+        if(isFromView && this.mode === recordMode) {
+            var track = this.midiFileObj.tracks[this.currentTrack];
+            var lastEvent = track[this.tracksCurrentEvent[this.currentTrack]];
+            //lastEvent.setDeltaTime(this.tick - lastEvent.absoluteTicks);
+            if(this.tracksCurrentEvent[this.currentTrack]+1 < track.length) {
+                var nextEvent = track[this.tracksCurrentEvent[this.currentTrack]+1];
+                nextEvent.setDeltaTime(nextEvent.absoluteTicks - this.tick);
+            }
+            event.absoluteTicks = this.tick;
+            event.setDeltaTime(this.tick - lastEvent.absoluteTicks);
+            this.midiFileObj.tracks[this.currentTrack] =
+                track.slice(0, this.tracksCurrentEvent[this.currentTrack]+1)
+                    .concat(event)
+                    .concat(track.slice(this.tracksCurrentEvent[this.currentTrack]+1, track.length));
+            this.tracksCurrentEvent[this.currentTrack] += 1;
+            if(this.tick > this.totalTicks) {
+                this.totalTicks = this.tick;
+            }
         }
         switch (event.type) {
             case 'meta':

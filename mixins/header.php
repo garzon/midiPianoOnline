@@ -61,7 +61,10 @@ function mixin_header($pageTitle, $nav_tab, $cssPathArr = [], $extra_msg = '', $
 				"WebAudioSynth" : ["<?= DOMAIN ?>/js/webaudiosynth"],
 				"WebAudioViolinNode" : ["<?= DOMAIN ?>/js/webaudioviolinnode"],
 				"WebMidiInstructmentNode": ["<?= DOMAIN ?>/js/webmidiinstructmentnode"],
-				"OutputStream": ["<?= DOMAIN ?>/js/outputstream"]
+				"OutputStream": ["<?= DOMAIN ?>/js/outputstream"],
+				"MidiEvent": ["<?= DOMAIN ?>/js/midievent"],
+				"jasmid-Stream": ["<?= DOMAIN ?>/js/jasmid/stream"],
+				"jasmid-MidiFile": ["<?= DOMAIN ?>/js/jasmid/midifile"]
 			}
 		});
 	</script>

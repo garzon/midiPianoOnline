@@ -112,3 +112,13 @@ function hexEncode(str) {
     }
     return ret;
 }
+
+// set up jquery ui components
+$document.ready(function() {
+    $(".dialog").each(function() {
+        var $this = $(this);
+        $this.dialog({
+            title: $this.data('title')
+        });
+    });
+});

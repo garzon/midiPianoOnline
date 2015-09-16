@@ -1,4 +1,4 @@
-define(['OutputStream'], function(OutputStream) {
+define(['OutputStream', 'jasmid-MidiFile'], function(OutputStream, MidiFile) {
     function MidiData(raw_data) {
         // This is a wrapper of MidiFile in jasmid.
 

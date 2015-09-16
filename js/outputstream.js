@@ -8,6 +8,17 @@ define(function() {
             }
         }
 
+        function writeVarInt(int) {
+            var res = [];
+            while (int !== 0) {
+                var thisByte = int & 0x7F;
+                int = int >> 7;
+                res.push(thisByte);
+            }
+            res.reverse();
+            for(var i=0; i<res.length-1; i++) writeInt8(res[i] | 0x80);
+        }
+
         function writeInt32(int) {
             writeInt16((int & 0xFFFF0000) >> 16);
             writeInt16(int & 0xFFFF);
@@ -27,6 +38,7 @@ define(function() {
         }
 
         return {
+            writeVarInt: writeVarInt,
             writeRaw: writeRaw,
             writeInt32: writeInt32,
             writeInt16: writeInt16,
