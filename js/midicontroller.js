@@ -49,7 +49,7 @@ define(function(require) {
     };
 
     MidiController.prototype._findNextDeltatime = function() {
-        var nextDeltatime = 30;
+        var nextDeltatime = 10;
         for(var i=0; i<this.midiFileObj.tracks.length; i++) {
             if(this.tracksCurrentEvent[i]+1 == this.midiFileObj.tracks[i].length) continue;
             nextDeltatime = Math.min(nextDeltatime, this.midiFileObj.tracks[i][this.tracksCurrentEvent[i]+1].absoluteTicks - this.tick);
@@ -100,9 +100,9 @@ define(function(require) {
             }
         }
         if(finishFlag && this.mode != recordMode) {
-            console.log('finish');
             this._playLoopLock = false;
             this.pause();
+            this.$this.trigger('evt_finish');
             return;
         }
 
@@ -204,8 +204,6 @@ define(function(require) {
 
     MidiController.prototype.handleEvent = function(event, isFromView) {
         if(isFromView && this.mode === recordMode && !this._pause) {
-            event.absoluteTicks = this.tick;
-            event.lastTime = 1;
             this.midiFileObj.insertEvent(event, this.currentTrack, this.tick);
             this.tracksCurrentEvent[this.currentTrack] += 1;
             if(this.tick > this.totalTicks) {
@@ -261,7 +259,6 @@ define(function(require) {
         if (!this.midiFileObj) return;
         this.midiFileObj.reload();
         this.totalTicks = this.midiFileObj.totalTicks;
-        console.log(this.midiFileObj);
         this._pause = false;
         this._playLoop(this._findNextDeltatime());
         this.midiKeyboardObj.refreshBarView();
@@ -285,14 +282,14 @@ define(function(require) {
 
     MidiController.prototype.record = function() {
         this.mode = recordMode;
-        console.log('recording');
+        this.$this.trigger('evt_record');
     };
 
     MidiController.prototype.stopRecord = function() {
         this.mode = playMode;
         this.midiFileObj.reload();
         this.$this.trigger('evt_load');
-        console.log('stop recording');
+        this.$this.trigger('evt_stopRecord');
     };
 
     MidiController.prototype.getRaw = function() {

@@ -84,14 +84,14 @@ define(function() {
 
         var render = function () {
             var whiteKeyNum = 0;
-            for (var keyId = key_dbound; keyId <= key_ubound; keyId++)
-                if (!isBlackKey(keyId)) whiteKeyNum++;
+            for(var keyId = key_dbound; keyId <= key_ubound; keyId++)
+                if(!isBlackKey(keyId)) whiteKeyNum++;
             whitekey_width = 98.0 / whiteKeyNum;
             blackkey_width = whitekey_width * 0.6;
-            for (var keyId = key_dbound; keyId <= key_ubound; keyId++) {
+            for(var keyId = key_dbound; keyId <= key_ubound; keyId++) {
                 var $keyDiv = $("<div/>").addClass('piano-keyboard-key').data('note', keyId);
                 var basicCss = {};
-                if (isBlackKey(keyId)) {
+                if(isBlackKey(keyId)) {
                     basicCss['width'] = blackkey_width + "%";
                     $keyDiv.addClass('piano-keyboard-blackkey');
                     if (keyId != key_dbound)

@@ -17,14 +17,17 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 		<span class="controller-button controller-button-backward" ng-click="backwardOnClick()">
 			<i class="glyphicon glyphicon-step-backward"></i>
 		</span>
-		<span class="controller-button {{playing ? 'controller-button-pause' : 'controller-button-play'}}" ng-click="playOnClick()">
-			<i class="glyphicon glyphicon-play"></i>
+		<span class="controller-button" ng-class="playing ? 'controller-button-pause' : 'controller-button-play'" ng-click="playOnClick()">
+			<i class="glyphicon" ng-class="playing ? 'glyphicon-pause' : 'glyphicon-play'"></i>
 		</span>
-		<span class="controller-button controller-button-record {{recording ? 'red' : ''}}" ng-click="recordOnClick()">
+		<span class="controller-button controller-button-record"  ng-class="recording ? 'red' : ''" ng-click="recordOnClick()">
 			<i class="glyphicon glyphicon-record"></i>
 		</span>
 		<span class="controller-button controller-button-upload" ng-click="uploadOnClick()">
 			<i class="glyphicon glyphicon-floppy-open"></i>
+		</span>
+		<span class="controller-button controller-button-new" ng-click="newOnClick()">
+			<i class="glyphicon glyphicon-file"></i>
 		</span>
 		<div class="progress">
 			<div id="playerProgressBar"></div>
@@ -62,10 +65,8 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 
 			$scope.recordOnClick = function() {
 				if(!$scope.recording) {
-					$scope.recording = true;
 					controller.record();
 				} else {
-					$scope.recording = false;
 					controller.stopRecord();
 				}
 			};
@@ -82,11 +83,21 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 				$progressBar.slider();
 				keyboardObj.render();
 
+				$scope.newOnClick = function() {
+					if(!confirm('new?')) return;
+					controller.pause();
+					MidiData.loadRemoteMidi('/midiPianoOnline/attachments/empty.mid', function(midiDataObj) {
+						controller.load(midiDataObj);
+						$scope.loading = false;
+						$scope.$apply();
+					});
+				};
 				MidiData.loadRemoteMidi('/midiPianoOnline/attachments/empty.mid', function(midiDataObj) {
 					controller.load(midiDataObj);
 					$scope.loading = false;
 					$scope.$apply();
 				});
+
 				controller.setInstructmentSet(WebAudioInstructmentNode.instructmentSet);
 
 				$(window).resize(function() {
@@ -98,13 +109,20 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 				controller.$this.on('evt_load', function() {
 					$progressBar.slider('option', {
 						min: 0,
-						max: this.totalTicks,
-						value: 0
+						max: controller.totalTicks,
+						value: controller.tick
 					});
 				}).on('evt_play:before', function() {
 					$progressBar.slider('option', {
 						value: this.tick
 					});
+				}).on('evt_finish', function() {
+					if($scope.playing) $scope.playOnClick();
+					$scope.$apply();
+				}).on('evt_record', function() {
+					$scope.recording = true;
+				}).on('evt_stopRecord', function() {
+					$scope.recording = false;
 				});
 
 				$scope.backwardOnClick = function() {
