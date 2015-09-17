@@ -7,9 +7,7 @@ function mixin_player_navbar() {
 			<div class="navbar-header col-md-2 col-sm-2 col-xs-12">
 				<a href="<?= DOMAIN ?>/index.php"><img class="navbar-header-logo" src="<?= DOMAIN ?>/img/logo.png" /></a>
 			</div>
-			<div class="progress">
-				<div id="playerProgressBar"></div>
-			</div>
+
 
 		</div>
 	</nav>

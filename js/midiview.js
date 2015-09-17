@@ -1,6 +1,8 @@
 define(function() {
     function MidiView($insertPoint) {
 
+        var $this;
+
         var isBasicBlackKey = {
             0: false, 1: true, 2: false, 3: true, 4: false,
             5: false, 6: true, 7: false, 8: true, 9: false, 10: true, 11: false
@@ -107,11 +109,24 @@ define(function() {
                 $keyDiv.css(basicCss).appendTo($insertPoint);
                 keyArray[keyId] = $keyDiv;
             }
+            $(".piano-keyboard-key").mousedown(function() {
+                var note = $(this).data('note');
+                pressKey(note);
+                $this.trigger('MidiView:mousedown', note);
+            }).mouseup(function() {
+                var note = $(this).data('note');
+                releaseKey(note);
+                $this.trigger('MidiView:mouseup', note);
+            }).mouseleave(function() {
+                var note = $(this).data('note');
+                releaseKey(note);
+                $this.trigger('MidiView:mouseup', note);
+            });
         };
 
         window.addEventListener('resize', refreshBarView);
 
-        return {
+        var ret = {
             render: render,
             generateBar: generateBar,
             refreshBarView: refreshBarView,
@@ -122,6 +137,11 @@ define(function() {
                 return keyArray[keyId];
             }
         };
+
+        $this = $(ret);
+        ret.$this = $this;
+
+        return ret;
     }
 
     return MidiView;

@@ -1,4 +1,4 @@
-define(['OutputStream'], function(OutputStream) {
+define(['OutputStream', 'jasmid-Stream'], function(OutputStream, Stream) {
 
     MidiEvent = function() {
         this.rawData = '';

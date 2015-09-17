@@ -4,7 +4,7 @@ define(['OutputStream', 'jasmid-MidiFile'], function(OutputStream, MidiFile) {
 
         var midiFileObj = MidiFile(raw_data);
 
-        var totalTicks = 0;
+        var totalTicks;
 
         function save() {
             var buffer = OutputStream();
@@ -31,38 +31,41 @@ define(['OutputStream', 'jasmid-MidiFile'], function(OutputStream, MidiFile) {
             return buffer.getOutput();
         }
 
-        // calculate absoluteTick for each event and lastTime for each noteOn event
-        var lastNoteOnTickAt = {};
-        function noteIdx(channel, note) { return channel * 0x100 + note; }
-        for(var i=0; i<midiFileObj.tracks.length; i++) {
-            var absoluteTicks = 0;
-            for(var j=0; j<midiFileObj.tracks[i].length; j++) {
-                var event = midiFileObj.tracks[i][j];
-                absoluteTicks += event.deltaTime;
-                event.absoluteTicks = absoluteTicks;
+        function reload() {
+            // calculate absoluteTick for each event and lastTime for each noteOn event
+            var lastNoteOnTickAt = {};
+            totalTicks = 0;
+            function noteIdx(channel, note) { return channel * 0x100 + note; }
+            for(var i=0; i<midiFileObj.tracks.length; i++) {
+                var absoluteTicks = 0;
+                for(var j=0; j<midiFileObj.tracks[i].length; j++) {
+                    var event = midiFileObj.tracks[i][j];
+                    absoluteTicks += event.deltaTime;
+                    event.absoluteTicks = absoluteTicks;
 
-                var lastinfo = lastNoteOnTickAt[noteIdx(event.channel, event.noteNumber)];
-                switch (event.subtype) {
-                    case 'noteOn':
-                        if(lastinfo) {
-                            midiFileObj.tracks[lastinfo[0]][lastinfo[1]].lastTime = absoluteTicks - midiFileObj.tracks[lastinfo[0]][lastinfo[1]].absoluteTicks;
-                        }
-                        lastNoteOnTickAt[noteIdx(event.channel, event.noteNumber)] = [i, j];
-                        break;
-                    case 'noteOff':
-                        if(lastinfo) {
-                            midiFileObj.tracks[lastinfo[0]][lastinfo[1]].lastTime = absoluteTicks - midiFileObj.tracks[lastinfo[0]][lastinfo[1]].absoluteTicks;
-                            lastNoteOnTickAt[noteIdx(event.channel, event.noteNumber)] = undefined;
-                        }
-                        break;
+                    var lastinfo = lastNoteOnTickAt[noteIdx(event.channel, event.noteNumber)];
+                    switch (event.subtype) {
+                        case 'noteOn':
+                            if(lastinfo) {
+                                midiFileObj.tracks[lastinfo[0]][lastinfo[1]].lastTime = absoluteTicks - midiFileObj.tracks[lastinfo[0]][lastinfo[1]].absoluteTicks;
+                            }
+                            lastNoteOnTickAt[noteIdx(event.channel, event.noteNumber)] = [i, j];
+                            break;
+                        case 'noteOff':
+                            if(lastinfo) {
+                                midiFileObj.tracks[lastinfo[0]][lastinfo[1]].lastTime = absoluteTicks - midiFileObj.tracks[lastinfo[0]][lastinfo[1]].absoluteTicks;
+                                lastNoteOnTickAt[noteIdx(event.channel, event.noteNumber)] = undefined;
+                            }
+                            break;
+                    }
                 }
+                totalTicks = Math.max(totalTicks, absoluteTicks);
             }
-            totalTicks = Math.max(totalTicks, absoluteTicks);
-        }
-        for(var k in lastNoteOnTickAt) {
-            var lastinfo = lastNoteOnTickAt[k];
-            if(lastinfo) {
-                midiFileObj.tracks[lastinfo[0]][lastinfo[1]].lastTime = -1; // no corresponding noteOff event
+            for(var k in lastNoteOnTickAt) {
+                var lastinfo = lastNoteOnTickAt[k];
+                if(lastinfo) {
+                    midiFileObj.tracks[lastinfo[0]][lastinfo[1]].lastTime = -1; // no corresponding noteOff event
+                }
             }
         }
 
@@ -70,7 +73,8 @@ define(['OutputStream', 'jasmid-MidiFile'], function(OutputStream, MidiFile) {
             header: midiFileObj.header,
             tracks: midiFileObj.tracks,
             totalTicks: totalTicks,
-            save: save
+            save: save,
+            reload: reload
         };
     }
 

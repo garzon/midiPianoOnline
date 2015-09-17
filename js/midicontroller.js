@@ -12,6 +12,11 @@ define(function(require) {
         this.totalTicks = 1;
         this.currentTrack = 0;
 
+        this.currentChannel = 0;
+
+        this._pause = true;
+        this.mode = playMode;
+
         this.channels = [];
         this.channelInstructmentId = [];
         for(var i = 0; i < 16; i++) {
@@ -132,15 +137,15 @@ define(function(require) {
         this.beatsPerMinute = 120;
         this.ticksPerBeat = midiFileObj.header.ticksPerBeat;
         this.totalTicks = midiFileObj.totalTicks;
+        this.currentTrack = midiFileObj.header.trackCount-1;
         this.resetCursor();
         this.$this.trigger('evt_load');
     };
 
     MidiController.prototype.resetCursor = function() {
         if (!this.midiFileObj) return;
-        this._pause = true;
+        this.mute();
         this.tick = 0;
-        this.mode = playMode;
         this.tracksCurrentEvent = [];
         for(var i=0; i<this.midiFileObj.tracks.length; i++) {
             this.tracksCurrentEvent = this.tracksCurrentEvent.concat(-1);
@@ -179,12 +184,12 @@ define(function(require) {
         if(isFromView && this.mode === recordMode) {
             var track = this.midiFileObj.tracks[this.currentTrack];
             var lastEvent = track[this.tracksCurrentEvent[this.currentTrack]];
-            //lastEvent.setDeltaTime(this.tick - lastEvent.absoluteTicks);
             if(this.tracksCurrentEvent[this.currentTrack]+1 < track.length) {
                 var nextEvent = track[this.tracksCurrentEvent[this.currentTrack]+1];
                 nextEvent.setDeltaTime(nextEvent.absoluteTicks - this.tick);
             }
             event.absoluteTicks = this.tick;
+            event.lastTime = -1;
             event.setDeltaTime(this.tick - lastEvent.absoluteTicks);
             this.midiFileObj.tracks[this.currentTrack] =
                 track.slice(0, this.tracksCurrentEvent[this.currentTrack]+1)
@@ -242,6 +247,7 @@ define(function(require) {
 
     MidiController.prototype.play = function() {
         if (!this.midiFileObj) return;
+        this.midiFileObj.reload();
         this._pause = false;
         this._playLoop(this._findNextDeltatime());
         this.midiKeyboardObj.refreshBarView();
@@ -258,6 +264,21 @@ define(function(require) {
         for(var i in this.channels) {
             this.channels[i].mute();
         }
+    };
+
+    MidiController.prototype.record = function() {
+        this.mode = recordMode;
+        console.log('recording');
+    };
+
+    MidiController.prototype.stopRecord = function() {
+        this.mode = playMode;
+        this.midiFileObj.reload();
+        console.log('stop recording');
+    };
+
+    MidiController.prototype.getRaw = function() {
+        return this.midiFileObj.save();
     };
 
     return MidiController;
