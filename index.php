@@ -31,7 +31,7 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 		</div>
 	</div>
 	<div class="{{loading ? '' : 'hidden'}}">
-		<p>Loading...</p>
+		<p>Loading... Please wait.</p>
 	</div>
 </div>
 
@@ -40,15 +40,15 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 <script>
 	var playerApp = angular.module('player', []);
 	playerApp.controller('playerController', function($scope) {
+		$scope.loading = true;
+		$scope.playing = false;
+		$scope.recording = false;
+
 		require(['MidiController', 'WebAudioInstructmentNode', 'WebMidiInstructmentNode', 'MidiView', 'MidiData', 'jasmid-MidiFile', 'jasmid-Stream', 'OutputStream'],
 		function(MidiController, WebAudioInstructmentNode, WebMidiInstructmentNode, MidiView, MidiData, MidiFile, Stream, OutputStream) {
 			var $keyboard = $(".piano-keyboard");
 			var keyboardObj = MidiView($keyboard);
 			var controller = new MidiController(keyboardObj);
-
-			$scope.loading = true;
-			$scope.playing = false;
-			$scope.recording = false;
 
 			$scope.playOnClick = function() {
 				if($scope.playing) {
@@ -70,10 +70,6 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 				}
 			};
 
-			$scope.backwardOnClick = function() {
-				controller.resetCursor();
-			};
-
 			$scope.uploadOnClick = function() {};
 
 			$document.ready(function() {
@@ -89,13 +85,14 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 				MidiData.loadRemoteMidi('/midiPianoOnline/attachments/aLIEz.mid', function(midiDataObj) {
 					controller.load(midiDataObj);
 					$scope.loading = false;
+					$scope.$apply();
 				});
 				controller.setInstructmentSet(WebAudioInstructmentNode.instructmentSet);
 
 				$(window).resize(function() {
 					controller.pause();
 				}).resize(debouncer(function() {
-					controller.play();
+					if($scope.playing) controller.play();
 				}));
 
 				controller.$this.on('evt_load', function() {
@@ -110,6 +107,18 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 					});
 				});
 
+				$scope.backwardOnClick = function() {
+					controller.resetCursor();
+					$progressBar.slider({value: 0});
+				};
+
+				$scope.uploadOnClick = function() {
+					var data = controller.getRaw();
+					$.post('/midiPianoOnline/uploader.php', {data: hexEncode(data)}, function() {
+						alert('succcessfully uploaded!')
+					});
+				};
+
 				$progressBar.on('slidestart', function() {
 					controller.pause();
 				}).on('slide', function() {
@@ -118,7 +127,7 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 				}).on('slidestop', function() {
 					var tick = $progressBar.slider('option', 'value');
 					controller.setCursor(tick);
-					controller.play();
+					if($scope.playing) controller.play();
 				});
 
 				keyboardObj.$this.on('MidiView:mousedown', function(e, note) {
@@ -148,12 +157,7 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 						controller.setInstructmentSet(WebAudioInstructmentNode.instructmentSet);
 					}
 				});
-				$scope.uploadOnClick = function() {
-					var data = controller.getRaw();
-					$.post('/midiPianoOnline/uploader.php', {data: hexEncode(data)}, function() {
-						alert('succcessfully uploaded!')
-					});
-				};
+
 			});
 		});
 	});

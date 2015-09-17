@@ -11,6 +11,9 @@ define(function(require) {
         this.tick = 0;
         this.totalTicks = 1;
         this.currentTrack = 0;
+        this._playLoopLock = false;
+        this._jumpFlag = false;
+        this._playLoopTimerId = undefined;
 
         this.currentChannel = 0;
 
@@ -33,8 +36,8 @@ define(function(require) {
         for(var i in track) {
             haystack = haystack.concat(track[i].absoluteTicks);
         }
-        var idx = binarySearch(haystack, this.tick+1, this.totalTicks, 0, haystack.length-1);
-        return idx === -1 ? haystack.length-1 : idx-1;
+        var idx = binarySearch(haystack, this.tick, this.totalTicks, 0, haystack.length-1);
+        return idx === -1 ? haystack.length-1 : idx;
     };
 
     MidiController.prototype._resetTracksCurrentEvent = function() {
@@ -46,10 +49,10 @@ define(function(require) {
     };
 
     MidiController.prototype._findNextDeltatime = function() {
-        var nextDeltatime = 20;
+        var nextDeltatime = 30;
         for(var i=0; i<this.midiFileObj.tracks.length; i++) {
             if(this.tracksCurrentEvent[i]+1 == this.midiFileObj.tracks[i].length) continue;
-            nextDeltatime = Math.min(nextDeltatime, this.midiFileObj.tracks[i][this.tracksCurrentEvent[i]+1].deltaTime);
+            nextDeltatime = Math.min(nextDeltatime, this.midiFileObj.tracks[i][this.tracksCurrentEvent[i]+1].absoluteTicks - this.tick);
         }
         return nextDeltatime;
     };
@@ -59,13 +62,13 @@ define(function(require) {
         var realNowTime = this.ticksToMs(this.tick)/1000;
         for(var i=0; i<this.midiFileObj.tracks.length; i++) {
             var evtPointer = this.tracksCurrentEvent[i];
-            while(evtPointer < this.midiFileObj.tracks[i].length &&
+            while (evtPointer < this.midiFileObj.tracks[i].length &&
             this.midiFileObj.tracks[i][evtPointer].absoluteTicks <= findEventToShowInTicks) {
                 var event = this.midiFileObj.tracks[i][evtPointer];
-                if(event.subtype == 'noteOn') {
+                if (event.subtype == 'noteOn') {
                     var barId = event.channel + '-' + event.noteNumber + '-' + event.absoluteTicks;
                     this.midiKeyboardObj.generateBar(event.channel, event.noteNumber,
-                        this.ticksToMs(event.absoluteTicks)/1000, this.ticksToMs(event.lastTime)/1000, realNowTime, barId, this._pause);
+                        this.ticksToMs(event.absoluteTicks) / 1000, this.ticksToMs(event.lastTime) / 1000, realNowTime, barId, this._pause);
                 }
                 evtPointer++;
             }
@@ -73,6 +76,11 @@ define(function(require) {
     };
 
     MidiController.prototype._playLoop = function(deltatime, msDelay) {
+        if(!this._playLoopLock) this._playLoopLock = true;
+        else return;
+
+        if(this._jumpFlag) { this._jumpFlag = false; this._playLoopLock = false; return; }
+
         if(msDelay > 300) {
             this.pause();
             this.midiKeyboardObj.refreshBarView();
@@ -92,19 +100,20 @@ define(function(require) {
             }
         }
         if(finishFlag && this.mode != recordMode) {
-            this.resetCursor();
             console.log('finish');
+            this._playLoopLock = false;
+            this.pause();
             return;
         }
 
         this._createBarInView();
-        this._setPlayLoop(this._findNextDeltatime(), msDelay);
-
         this.$this.trigger('evt_play:after');
+
+        this._setPlayLoop(this._findNextDeltatime(), msDelay);
     };
 
     MidiController.prototype._setPlayLoop = function(deltatime, msDelay) {
-        if(this._pause) return;
+        if(this._pause) { this._playLoopLock = false; return; }
 
         var date = new Date();
         var lastTime = date.getTime();
@@ -119,7 +128,19 @@ define(function(require) {
             };
         })(this, deltatime, lastTime+countdown);
 
-        window.setTimeout(playLoopCallback, countdown);
+        this._playLoopLock = false;
+        this._playLoopTimerId = window.setTimeout(playLoopCallback, countdown);
+    };
+
+    MidiController.prototype._killRunningLoop = function() {
+        if(this._playLoopLock) {
+            this._jumpFlag = true;
+            while(this._jumpFlag);
+        }
+        if(this._playLoopTimerId) {
+            window.clearTimeout(this._playLoopTimerId);
+        }
+        this.mute();
     };
 
     MidiController.prototype.ticksToMs = function(ticks) {
@@ -136,37 +157,38 @@ define(function(require) {
         this.midiFileObj = midiFileObj;
         this.beatsPerMinute = 120;
         this.ticksPerBeat = midiFileObj.header.ticksPerBeat;
-        this.totalTicks = midiFileObj.totalTicks;
         this.currentTrack = midiFileObj.header.trackCount-1;
+        this.midiFileObj.reload();
+        this.totalTicks = this.midiFileObj.totalTicks;
         this.resetCursor();
         this.$this.trigger('evt_load');
     };
 
     MidiController.prototype.resetCursor = function() {
         if (!this.midiFileObj) return;
-        this.mute();
+        var tmp_stat = this._pause;
+        this._killRunningLoop();
         this.tick = 0;
-        this.tracksCurrentEvent = [];
-        for(var i=0; i<this.midiFileObj.tracks.length; i++) {
-            this.tracksCurrentEvent = this.tracksCurrentEvent.concat(-1);
-        }
+        this._resetTracksCurrentEvent();
+        this.midiKeyboardObj.refreshBarView();
+        if(!tmp_stat) this.play();
         this.$this.trigger('evt_reset');
     };
 
     MidiController.prototype.setCursor = function(tick) {
+        this._killRunningLoop();
         var tmp_stat = this._pause;
-        this._pause = true;
         this.tick = tick;
-        this.midiKeyboardObj.refreshBarView();
         this._resetTracksCurrentEvent();
+        this.midiKeyboardObj.refreshBarView();
         if(!tmp_stat) this.play();
     };
 
     MidiController.prototype.sliding = function(tick) {
+        this._killRunningLoop();
         this.tick = tick;
-        this.midiKeyboardObj.refreshBarView();
         this._resetTracksCurrentEvent();
-        this.mute();
+        this.midiKeyboardObj.refreshBarView();
 
         for(var i=0; i<this.midiFileObj.tracks.length; i++) {
             if(this.tracksCurrentEvent[i]+1 == this.midiFileObj.tracks[i].length) continue;
@@ -248,6 +270,7 @@ define(function(require) {
     MidiController.prototype.play = function() {
         if (!this.midiFileObj) return;
         this.midiFileObj.reload();
+        this.totalTicks = this.midiFileObj.totalTicks;
         this._pause = false;
         this._playLoop(this._findNextDeltatime());
         this.midiKeyboardObj.refreshBarView();
@@ -257,6 +280,8 @@ define(function(require) {
     MidiController.prototype.pause = function() {
         this._pause = true;
         this.mute();
+        this.midiKeyboardObj.refreshBarView();
+        this._createBarInView();
         this.$this.trigger('evt_pause');
     };
 

@@ -4,7 +4,7 @@ define(['OutputStream', 'jasmid-MidiFile'], function(OutputStream, MidiFile) {
 
         var midiFileObj = MidiFile(raw_data);
 
-        var totalTicks;
+        var self;
 
         function save() {
             var buffer = OutputStream();
@@ -34,7 +34,7 @@ define(['OutputStream', 'jasmid-MidiFile'], function(OutputStream, MidiFile) {
         function reload() {
             // calculate absoluteTick for each event and lastTime for each noteOn event
             var lastNoteOnTickAt = {};
-            totalTicks = 0;
+            self.totalTicks = 0;
             function noteIdx(channel, note) { return channel * 0x100 + note; }
             for(var i=0; i<midiFileObj.tracks.length; i++) {
                 var absoluteTicks = 0;
@@ -59,7 +59,7 @@ define(['OutputStream', 'jasmid-MidiFile'], function(OutputStream, MidiFile) {
                             break;
                     }
                 }
-                totalTicks = Math.max(totalTicks, absoluteTicks);
+                self.totalTicks = Math.max(self.totalTicks, absoluteTicks);
             }
             for(var k in lastNoteOnTickAt) {
                 var lastinfo = lastNoteOnTickAt[k];
@@ -69,13 +69,14 @@ define(['OutputStream', 'jasmid-MidiFile'], function(OutputStream, MidiFile) {
             }
         }
 
-        return {
+        self = {
             header: midiFileObj.header,
             tracks: midiFileObj.tracks,
-            totalTicks: totalTicks,
             save: save,
             reload: reload
         };
+
+        return self;
     }
 
     MidiData.loadRemoteMidi = function(path, callback) {
