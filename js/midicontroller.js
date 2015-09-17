@@ -203,20 +203,10 @@ define(function(require) {
     };
 
     MidiController.prototype.handleEvent = function(event, isFromView) {
-        if(isFromView && this.mode === recordMode) {
-            var track = this.midiFileObj.tracks[this.currentTrack];
-            var lastEvent = track[this.tracksCurrentEvent[this.currentTrack]];
-            if(this.tracksCurrentEvent[this.currentTrack]+1 < track.length) {
-                var nextEvent = track[this.tracksCurrentEvent[this.currentTrack]+1];
-                nextEvent.setDeltaTime(nextEvent.absoluteTicks - this.tick);
-            }
+        if(isFromView && this.mode === recordMode && !this._pause) {
             event.absoluteTicks = this.tick;
-            event.lastTime = -1;
-            event.setDeltaTime(this.tick - lastEvent.absoluteTicks);
-            this.midiFileObj.tracks[this.currentTrack] =
-                track.slice(0, this.tracksCurrentEvent[this.currentTrack]+1)
-                    .concat(event)
-                    .concat(track.slice(this.tracksCurrentEvent[this.currentTrack]+1, track.length));
+            event.lastTime = 1;
+            this.midiFileObj.insertEvent(event, this.currentTrack, this.tick);
             this.tracksCurrentEvent[this.currentTrack] += 1;
             if(this.tick > this.totalTicks) {
                 this.totalTicks = this.tick;
@@ -271,9 +261,11 @@ define(function(require) {
         if (!this.midiFileObj) return;
         this.midiFileObj.reload();
         this.totalTicks = this.midiFileObj.totalTicks;
+        console.log(this.midiFileObj);
         this._pause = false;
         this._playLoop(this._findNextDeltatime());
         this.midiKeyboardObj.refreshBarView();
+        this.$this.trigger('evt_load');
         this.$this.trigger('evt_play');
     };
 
@@ -299,6 +291,7 @@ define(function(require) {
     MidiController.prototype.stopRecord = function() {
         this.mode = playMode;
         this.midiFileObj.reload();
+        this.$this.trigger('evt_load');
         console.log('stop recording');
     };
 

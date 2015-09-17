@@ -69,11 +69,36 @@ define(['OutputStream', 'jasmid-MidiFile'], function(OutputStream, MidiFile) {
             }
         }
 
+        function insertEvent(event, trackId, tick) {
+            var track = midiFileObj.tracks[trackId];
+            var haystack = [];
+            for(var i in track) {
+                haystack = haystack.concat(track[i].absoluteTicks);
+            }
+            var idx = binarySearch(haystack, tick, 99999999, 0, track.length-1);
+            if(idx === -1) idx = track.length-1;
+
+            var lastEvent = undefined, nextEvent = undefined;
+            if(idx != 0) lastEvent = track[idx-1];
+            if(idx+1 < track.length) nextEvent = track[idx+1];
+
+            var lastEventTick = 0;
+            if(nextEvent) nextEvent.setDeltaTime(nextEvent.absoluteTicks - tick);
+            if(lastEvent) lastEventTick = lastEvent.absoluteTicks;
+            event.setDeltaTime(tick - lastEventTick);
+
+            midiFileObj.tracks[trackId] =
+                track.slice(0, idx)
+                    .concat(event)
+                    .concat(track.slice(idx, track.length));
+        }
+
         self = {
             header: midiFileObj.header,
             tracks: midiFileObj.tracks,
             save: save,
-            reload: reload
+            reload: reload,
+            insertEvent: insertEvent
         };
 
         return self;

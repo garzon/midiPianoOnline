@@ -82,7 +82,7 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 				$progressBar.slider();
 				keyboardObj.render();
 
-				MidiData.loadRemoteMidi('/midiPianoOnline/attachments/aLIEz.mid', function(midiDataObj) {
+				MidiData.loadRemoteMidi('/midiPianoOnline/attachments/empty.mid', function(midiDataObj) {
 					controller.load(midiDataObj);
 					$scope.loading = false;
 					$scope.$apply();
@@ -147,7 +147,6 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 				});
 				WebMidiInstructmentNode.midi_output = $("#x-webmidi-output").get(0);
 				window.addEventListener('midioutput-updated:x-webmidi-output', function(event) {
-					console.log(event);
 					if(event.target.outputIdx != "false") {
 						// have chosen a MIDI Output Device
 						console.log('midi output');
