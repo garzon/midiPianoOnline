@@ -15,7 +15,11 @@ define(function() {
 
         var refreshBarView = function () {
             $(".piano-bar").remove();
-            $(".piano-keyboard-key-pressed").removeClass("piano-keyboard-key-pressed");
+            $(".piano-keyboard-key-pressed").each(function() {
+                var $this = $(this);
+                var className = isBlackKey($this.data('note')) ? 'piano-keyboard-blackkey': 'piano-keyboard-whitekey';
+                $this.attr('class', 'piano-keyboard-key ' + className);
+            });
             barArray = [];
         };
 
@@ -81,7 +85,7 @@ define(function() {
 
         var pressKey = function (channel, note, autoRelease) {
             var $ele = keyArray[note];
-            if ($ele) $ele.addClass(getChannelColorClassName(channel));
+            if ($ele) $ele.addClass('piano-keyboard-key-pressed').addClass(getChannelColorClassName(channel));
             if (autoRelease) {
                 window.setTimeout(function () {
                     releaseKey(note);
@@ -143,6 +147,21 @@ define(function() {
             });
         };
 
+        var scoring = function(note, score) {
+            var rank = 'ok';
+            if(score > 20) rank = 'perfect';
+            if(15 < score && score <= 20) rank = 'good';
+            if(score < 0) rank = 'wrong';
+
+            var $key = keyArray[note];
+            var pos = getPosition($key.get(0));
+            var $ele = $("<div/>").text(rank).addClass('scoring').addClass('scoring-'+rank).css({
+                top: pos.top + 'px',
+                left: pos.left * 100 / innerWidth + '%'
+            });
+            $ele.animate({top: '-=10'}).fadeOut(function() { $(this).remove(); }).insertBefore($insertPoint);
+        };
+
         window.addEventListener('resize', refreshBarView);
 
         var ret = {
@@ -152,7 +171,8 @@ define(function() {
             pressKey: pressKey,
             releaseKey: releaseKey,
             setTempo: setTempo,
-            setTicksPerBeat: setTicksPerBeat
+            setTicksPerBeat: setTicksPerBeat,
+            scoring: scoring
         };
 
         $this = $(ret);

@@ -38,6 +38,22 @@
     border: 1px solid black;
 }
 
+.piano-keyboard-key-pressed--2 {
+    /* a wide bar for each beat */
+    height: 0 !important;
+    width: 100% !important;
+    z-index: -3 !important;
+    border: 1px dashed grey !important;
+}
+
+.piano-keyboard-key-pressed--1 {
+    /* a wide bar for each measure */
+    background-color: grey !important;
+    width: 100% !important;
+    z-index: -2 !important;
+    border: 0 !important;
+}
+
 .piano-keyboard-key-pressed-0 {
     background-color: aquamarine !important;
 }
@@ -52,4 +68,27 @@
 
 .piano-keyboard-key-pressed-otherchannel {
     background-color: orchid !important;
+}
+
+.scoring {
+    z-index: 11;
+    position: absolute;
+}
+
+.scoring-perfect {
+    color: forestgreen;
+    font-weight: bold;
+}
+
+.scoring-good {
+    color: greenyellow;
+}
+
+.scoring-ok {
+    color: #ffff00;
+}
+
+.scoring-wrong {
+    color: red;
+    font-weight: bold;
 }

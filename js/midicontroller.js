@@ -63,6 +63,7 @@ define(function(require) {
                 this.tracksCurrentEvent.concat(this._findTrackCurrentEventIdAtTick(i));
         }
         this._resetTempo();
+        this.score = 0;
         this._needToResetTime = true;
     };
 
@@ -89,6 +90,23 @@ define(function(require) {
                 }
                 evtPointer++;
             }
+        }
+        if(findEventToShowInTicks > this.totalTicks*3) return;
+        var ticksPerMeasure = this.ticksPerBeat * this.beatsPerMeasure;
+        var ticksToMeasure = (ticksPerMeasure - this.tick % ticksPerMeasure) % ticksPerMeasure;
+        var p = this.tick + ticksToMeasure;
+        while(p <= findEventToShowInTicks) {
+            var barId = '-1-21-' + p;
+            this.midiKeyboardObj.generateBar(-1, 21, p, -1, this.tick, barId, this._pause);
+            p += ticksPerMeasure;
+        }
+        if(this.mode !== recordMode) return;
+        var ticksToBeat = (this.ticksPerBeat - this.tick % this.ticksPerBeat) % this.ticksPerBeat;
+        p = this.tick + ticksToBeat;
+        while(p <= findEventToShowInTicks) {
+            var barId = '-2-21-' + p;
+            this.midiKeyboardObj.generateBar(-2, 21, p, -1, this.tick, barId, this._pause);
+            p += this.ticksPerBeat;
         }
     };
 
@@ -185,6 +203,7 @@ define(function(require) {
     MidiController.prototype.load = function(midiFileObj) {
         this.midiFileObj = midiFileObj;
         this.beatsPerMinute = 120;
+        this.beatsPerMeasure = 4;
         this.score = 0;
         this.ticksPerBeat = midiFileObj.header.ticksPerBeat;
         this.currentTrack = midiFileObj.header.trackCount-1;
@@ -203,7 +222,7 @@ define(function(require) {
         this.tick = 0;
         this.time = 0;
         this._resetTracksCurrentEvent();
-        this.midiKeyboardObj.refreshBarView();
+        this.refreshBarView();
         if(!tmp_stat) this.play();
         this.$this.trigger('evt_reset');
     };
@@ -212,18 +231,16 @@ define(function(require) {
         this._killRunningLoop();
         var tmp_stat = this._pause;
         this.tick = tick;
-        this.time = 0;
         this._resetTracksCurrentEvent();
-        this.midiKeyboardObj.refreshBarView();
+        this.refreshBarView();
         if(!tmp_stat) this.play();
     };
 
     MidiController.prototype.sliding = function(tick) {
         this._killRunningLoop();
         this.tick = tick;
-        this.time = 0;
         this._resetTracksCurrentEvent();
-        this.midiKeyboardObj.refreshBarView();
+        this.refreshBarView();
 
         for(var i=0; i<this.midiFileObj.tracks.length; i++) {
             if(this.tracksCurrentEvent[i]+1 == this.midiFileObj.tracks[i].length) continue;
@@ -231,15 +248,15 @@ define(function(require) {
                   Math.abs(this.midiFileObj.tracks[i][this.tracksCurrentEvent[i]+1].absoluteTicks - this.tick) < 500) {
                 this.tracksCurrentEvent[i] += 1;
                 this.handleEvent(this.midiFileObj.tracks[i][this.tracksCurrentEvent[i]]);
+                this.time = this.midiFileObj.tracks[i][this.tracksCurrentEvent[i]].absoluteTime;
             }
         }
 
-        this._createBarInView();
     };
 
     MidiController.sameEvent = function(ev1, ev2) {
         if(ev1.subtype !== ev2.subtype) return false;
-        if(ev1.subtype !== 'noteOn' || ev1.subtype !== 'noteOff') return false;
+        if(ev1.subtype !== 'noteOn' && ev1.subtype !== 'noteOff') return false;
         return ev1.noteNumber === ev2.noteNumber;
     };
 
@@ -247,6 +264,11 @@ define(function(require) {
         this.beatsPerMinute = tempo;
         this.midiKeyboardObj.setTempo(tempo);
     };
+
+    MidiController.prototype.setTimeSignature = function(numerator, denominator) {
+        this.beatsPerMeasure = numerator;
+        this.midiKeyboardObj.refreshBarView();
+    }
 
     MidiController.prototype.setMicrosecondsPerBeat = function(microsecondsPerBeat) {
         this.setTempo(60000000 / microsecondsPerBeat);
@@ -261,27 +283,36 @@ define(function(require) {
                 this.totalTime = this.time;
             }
         }
-        if(isFromView && this.mode === playMode && !this._pause) {
-            var correctFlag = false;
+        if(isFromView && this.mode === playMode && !this._pause && (event.subtype === 'noteOn' || event.subtype === 'noteOff')) {
+            var correctFlag = 0;
             for(var i in this.midiFileObj.tracks) {
                 var lastEvent = undefined, nextEvent = undefined;
                 if(this.tracksCurrentEvent[i] < this.midiFileObj.tracks[i].length)
                     lastEvent = this.midiFileObj.tracks[i][this.tracksCurrentEvent[i]];
                 if(this.tracksCurrentEvent[i]+1 < this.midiFileObj.tracks[i].length)
                     nextEvent = this.midiFileObj.tracks[i][this.tracksCurrentEvent[i]+1];
-                if(lastEvent && Math.abs(lastEvent.absoluteTicks - this.tick) > 300) lastEvent = undefined;
-                if(nextEvent && Math.abs(nextEvent.absoluteTicks - this.tick) > 300) nextEvent = undefined;
-                if(lastEvent && MidiController.sameEvent(lastEvent, event)) correctFlag = true;
-                if(nextEvent && MidiController.sameEvent(nextEvent, event)) correctFlag = true;
+                if(lastEvent && Math.abs(lastEvent.absoluteTime - this.time) > 300) lastEvent = undefined;
+                if(nextEvent && Math.abs(nextEvent.absoluteTime - this.time) > 300) nextEvent = undefined;
+                if(lastEvent && MidiController.sameEvent(lastEvent, event)) correctFlag = Math.round((300-Math.abs(lastEvent.absoluteTime - this.time))/10);
+                if(nextEvent && MidiController.sameEvent(nextEvent, event)) correctFlag = Math.round((300-Math.abs(nextEvent.absoluteTime - this.time))/10);
                 if(correctFlag) break;
             }
-            if(correctFlag) this.score += 10;
+            if(correctFlag) {
+                this.score += correctFlag;
+                this.midiKeyboardObj.scoring(event.noteNumber, correctFlag);
+            } else {
+                this.score -= 3;
+                this.midiKeyboardObj.scoring(event.noteNumber, -3);
+            }
         }
         switch (event.type) {
             case 'meta':
                 switch (event.subtype) {
                     case 'setTempo':
                         this.setMicrosecondsPerBeat(event.microsecondsPerBeat);
+                        break;
+                    case 'timeSignature':
+                        this.setTimeSignature(event.numerator, event.denominator);
                 }
                 break;
             case 'channel':
@@ -337,8 +368,7 @@ define(function(require) {
     MidiController.prototype.pause = function() {
         this._pause = true;
         this.mute();
-        this.midiKeyboardObj.refreshBarView();
-        this._createBarInView();
+        this.refreshBarView();
         this.$this.trigger('evt_pause');
     };
 
@@ -376,6 +406,7 @@ define(function(require) {
 
     MidiController.prototype.refreshBarView = function() {
         this.midiKeyboardObj.refreshBarView();
+        this._createBarInView();
     };
 
     return MidiController;

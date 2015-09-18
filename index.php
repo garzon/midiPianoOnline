@@ -35,15 +35,15 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 		<div class="progress">
 			<div id="playerProgressBar"></div>
 		</div>
-		<div class="row">
-			<a href="#" class="btn" ng-class="controller.mode == 'playing' ? 'btn-success' : 'btn-primary'" ng-click="switchMode()">
-				{{controller.mode == 'playing' ? 'Playing...' : 'Editing...'}}
+		<div>
+			<a href="#" class="inline-block btn" ng-class="controller.mode == 'playing' ? 'btn-success' : 'btn-primary'" ng-click="switchMode()">
+				{{controller.mode == 'playing' ? 'Play Mode' : 'Edit Mode'}}
 			</a>
 			<span ng-show="controller.mode == 'playing'">
 				Score: {{controller.score}}
 			</span>
 			<span>
-				Tempo: {{round(controller.beatsPerMinute)}}
+				Tempo: {{controller.beatsPerMinute > 256 ? 0 : round(controller.beatsPerMinute)}}
 			</span>
 		</div>
 	</div>
@@ -114,11 +114,12 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 					controller.pause();
 					MidiData.loadRemoteMidi('/midiPianoOnline/attachments/empty.mid', function(midiDataObj) {
 						controller.load(midiDataObj);
+						controller.setEditingMode();
 						$scope.loading = false;
 						$scope.$apply();
 					});
 				};
-				MidiData.loadRemoteMidi('/midiPianoOnline/attachments/aLIEz3.mid', function(midiDataObj) {
+				MidiData.loadRemoteMidi('/midiPianoOnline/attachments/aLIEz.mid', function(midiDataObj) {
 					controller.load(midiDataObj);
 					$scope.loading = false;
 					$scope.$apply();
@@ -144,7 +145,8 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 					$progressBar.slider('option', {
 						min: 0,
 						max: controller.totalTicks,
-						value: controller.tick
+						value: controller.tick,
+						step: 240
 					});
 				}).on('evt_play:before', function() {
 					$progressBar.slider('option', {
@@ -176,18 +178,20 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 				}).on('slide', function() {
 					var tick = $progressBar.slider('option', 'value');
 					controller.sliding(tick);
+					$scope.$apply();
 				}).on('slidestop', function() {
 					var tick = $progressBar.slider('option', 'value');
 					controller.setCursor(tick);
 					if($scope.playing) controller.play();
+					$scope.$apply();
 				});
 
 				keyboardObj.$this.on('MidiView:mousedown', function(e, note) {
-					var data = Stream(asciiArray2Binary([0x60, 0x90+controller.currentChannel, note, 0x80]));
+					var data = Stream(asciiArray2Binary([0x60, 0x90+controller.currentChannel, note, 0x60]));
 					var event = MidiFile().readEvent(data);
 					controller.handleEvent(event, true);
 				}).on('MidiView:mouseup', function(e, note) {
-					var data = Stream(asciiArray2Binary([0x60, 0x80+controller.currentChannel, note, 0x80]));
+					var data = Stream(asciiArray2Binary([0x60, 0x80+controller.currentChannel, note, 0x60]));
 					var event = MidiFile().readEvent(data);
 					controller.handleEvent(event, true);
 				});

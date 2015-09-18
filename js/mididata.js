@@ -129,9 +129,9 @@ define(['OutputStream', 'jasmid-MidiFile'], function(OutputStream, MidiFile) {
             if(lastEvent) lastEventTick = lastEvent.absoluteTicks;
             if(idx === -1) { // recorded after "end of track"
                 nextEvent = track[track.length-1];
-                nextEvent.absoluteTicks = tick;
-                nextEvent.absoluteTime = time;
-                nextEvent.setDeltaTime(0);
+                nextEvent.absoluteTicks = tick+1;
+                nextEvent.absoluteTime = time+1;
+                nextEvent.setDeltaTime(1);
                 idx = track.length-1;
             }
 

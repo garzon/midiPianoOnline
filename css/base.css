@@ -16,6 +16,6 @@ body {
     color: red;
 }
 
-#progress {
+.progress {
     background-color: white;
 }
