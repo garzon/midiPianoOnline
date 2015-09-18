@@ -19,10 +19,6 @@
     float: left;
 }
 
-.piano-keyboard-key-pressed {
-    background-color: aquamarine !important;
-}
-
 .piano-keyboard-blackkey {
     background-color: #000000;
     height: 60%;
@@ -40,5 +36,20 @@
     z-index: -1;
     position: absolute;
     border: 1px solid black;
-    background-color: aquamarine;
+}
+
+.piano-keyboard-key-pressed-0 {
+    background-color: aquamarine !important;
+}
+
+.piano-keyboard-key-pressed-1 {
+    background-color: #2191c0 !important;
+}
+
+.piano-keyboard-key-pressed-2 {
+    background-color: #eeb420 !important;
+}
+
+.piano-keyboard-key-pressed-otherchannel {
+    background-color: orchid !important;
 }

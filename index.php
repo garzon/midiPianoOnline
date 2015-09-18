@@ -118,7 +118,7 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 						$scope.$apply();
 					});
 				};
-				MidiData.loadRemoteMidi('/midiPianoOnline/attachments/minute_waltz.mid', function(midiDataObj) {
+				MidiData.loadRemoteMidi('/midiPianoOnline/attachments/aLIEz3.mid', function(midiDataObj) {
 					controller.load(midiDataObj);
 					$scope.loading = false;
 					$scope.$apply();
@@ -129,6 +129,7 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 						controller.setEditingMode();
 					else
 						controller.setPlayMode();
+					controller.refreshBarView();
 				};
 
 				controller.setInstructmentSet(WebAudioInstructmentNode.instructmentSet);

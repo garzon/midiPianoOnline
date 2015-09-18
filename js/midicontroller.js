@@ -76,7 +76,7 @@ define(function(require) {
     };
 
     MidiController.prototype._createBarInView = function() {
-        var findEventToShowInTicks = this.msToTicks((this.midiKeyboardObj.screen_time + 0.5)*1000) + this.tick;
+        var findEventToShowInTicks = this.msToTicks(5000) + this.tick;
         for(var i=0; i<this.midiFileObj.tracks.length; i++) {
             var evtPointer = this.tracksCurrentEvent[i];
             while (evtPointer < this.midiFileObj.tracks[i].length &&
@@ -288,11 +288,11 @@ define(function(require) {
                 switch (event.subtype) {
                     case 'noteOn':
                         this.channels[event.channel].noteOn(event.noteNumber, event.velocity, event.lastTime);
-                        this.midiKeyboardObj.pressKey(event.noteNumber, event.lastTime <= 0);
+                        this.midiKeyboardObj.pressKey(event.channel, event.noteNumber, event.lastTime <= 0);
                         break;
                     case 'noteOff':
                         this.channels[event.channel].noteOff(event.noteNumber, event.velocity);
-                        this.midiKeyboardObj.releaseKey(event.noteNumber);
+                        this.midiKeyboardObj.releaseKey(event.channel, event.noteNumber);
                         break;
                     case 'programChange':
                         //console.log('program change to ' + event.programNumber);
@@ -372,6 +372,10 @@ define(function(require) {
 
     MidiController.prototype.setEditingMode = function() {
         this.mode = recordMode;
+    };
+
+    MidiController.prototype.refreshBarView = function() {
+        this.midiKeyboardObj.refreshBarView();
     };
 
     return MidiController;

@@ -157,6 +157,7 @@ define(['OutputStream', 'jasmid-MidiFile'], function(OutputStream, MidiFile) {
     MidiData.loadRemoteMidi = function(path, callback) {
         function string2binary(str) {
             var ret = [];
+            console.log(str.length);
             for(var i=0; i<str.length; i++) {
                 ret = ret.concat(String.fromCharCode(str.charCodeAt(i) & 0xff));
             }

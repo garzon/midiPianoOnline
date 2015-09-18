@@ -58,7 +58,7 @@ define(function() {
                 left: (getPosition($key.get(0)).left * 100 / innerWidth) + '%',
                 height: height + 'px',
                 top: top + 'px'
-            }).addClass("piano-bar");
+            }).addClass("piano-bar").addClass(getChannelColorClassName(channelId));
 
             $ele.insertBefore($insertPoint);
 
@@ -74,9 +74,14 @@ define(function() {
             }
         };
 
-        var pressKey = function (note, autoRelease) {
+        var getChannelColorClassName = function(channel) {
+            if(channel <= 2) return 'piano-keyboard-key-pressed-' + channel;
+            return 'piano-keyboard-key-pressed-otherchannel';
+        };
+
+        var pressKey = function (channel, note, autoRelease) {
             var $ele = keyArray[note];
-            if ($ele) $ele.addClass("piano-keyboard-key-pressed");
+            if ($ele) $ele.addClass(getChannelColorClassName(channel));
             if (autoRelease) {
                 window.setTimeout(function () {
                     releaseKey(note);
@@ -84,9 +89,9 @@ define(function() {
             }
         };
 
-        var releaseKey = function (note) {
+        var releaseKey = function (channel, note) {
             var $ele = keyArray[note];
-            if ($ele) $ele.removeClass("piano-keyboard-key-pressed");
+            if ($ele) $ele.removeClass(getChannelColorClassName(channel));
         };
 
         var isBlackKey = function (id) {
@@ -122,17 +127,17 @@ define(function() {
             }
             $(".piano-keyboard-key").mousedown(function() {
                 var note = $(this).data('pressed', true).data('note');
-                pressKey(note);
+                pressKey(undefined, note);
                 $this.trigger('MidiView:mousedown', note);
             }).mouseup(function() {
                 var note = $(this).data('pressed', false).data('note');
-                releaseKey(note);
+                releaseKey(undefined, note);
                 $this.trigger('MidiView:mouseup', note);
             }).mouseleave(function() {
                 var $self = $(this);
                 if($self.data('pressed')) {
                     var note = $self.data('pressed', false).data('note');
-                    releaseKey(note);
+                    releaseKey(undefined, note);
                     $this.trigger('MidiView:mouseup', note);
                 }
             });
@@ -144,12 +149,8 @@ define(function() {
             render: render,
             generateBar: generateBar,
             refreshBarView: refreshBarView,
-            screen_time: screen_time,
             pressKey: pressKey,
             releaseKey: releaseKey,
-            getKeyElement: function (keyId) {
-                return keyArray[keyId];
-            },
             setTempo: setTempo,
             setTicksPerBeat: setTicksPerBeat
         };
