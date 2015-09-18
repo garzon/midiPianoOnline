@@ -15,3 +15,7 @@ body {
 .red {
     color: red;
 }
+
+#progress {
+    background-color: white;
+}

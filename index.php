@@ -20,7 +20,7 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 		<span class="controller-button" ng-class="playing ? 'controller-button-pause' : 'controller-button-play'" ng-click="playOnClick()">
 			<i class="glyphicon" ng-class="playing ? 'glyphicon-pause' : 'glyphicon-play'"></i>
 		</span>
-		<span class="controller-button controller-button-record"  ng-class="recording ? 'red' : ''" ng-click="recordOnClick()">
+		<span class="controller-button controller-button-record"  ng-class="controller.recording ? 'red' : ''" ng-click="recordOnClick()">
 			<i class="glyphicon glyphicon-record"></i>
 		</span>
 		<span class="controller-button controller-button-upload" ng-click="uploadOnClick()">
@@ -29,8 +29,22 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 		<span class="controller-button controller-button-new" ng-click="newOnClick()">
 			<i class="glyphicon glyphicon-file"></i>
 		</span>
+		<span>
+			{{msToTimeString(controller.time)}}/{{msToTimeString(controller.totalTime)}}
+		</span>
 		<div class="progress">
 			<div id="playerProgressBar"></div>
+		</div>
+		<div class="row">
+			<a href="#" class="btn" ng-class="controller.mode == 'playing' ? 'btn-success' : 'btn-primary'" ng-click="switchMode()">
+				{{controller.mode == 'playing' ? 'Playing...' : 'Editing...'}}
+			</a>
+			<span ng-show="controller.mode == 'playing'">
+				Score: {{controller.score}}
+			</span>
+			<span>
+				Tempo: {{round(controller.beatsPerMinute)}}
+			</span>
 		</div>
 	</div>
 	<div class="{{loading ? '' : 'hidden'}}">
@@ -45,13 +59,25 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 	playerApp.controller('playerController', function($scope) {
 		$scope.loading = true;
 		$scope.playing = false;
-		$scope.recording = false;
+
+		$scope.round = Math.round;
+
+		$scope.msToTimeString = function(ms) {
+			var s = Math.round(ms / 1000);
+			var min = String(Math.floor(s/60));
+			if(min.length < 2) min = '0' + min;
+			s = String(s % 60);
+			if(s.length < 2) s = '0' + s;
+			return min + ':' + s;
+		};
 
 		require(['MidiController', 'WebAudioInstructmentNode', 'WebMidiInstructmentNode', 'MidiView', 'MidiData', 'jasmid-MidiFile', 'jasmid-Stream', 'OutputStream'],
 		function(MidiController, WebAudioInstructmentNode, WebMidiInstructmentNode, MidiView, MidiData, MidiFile, Stream, OutputStream) {
 			var $keyboard = $(".piano-keyboard");
 			var keyboardObj = MidiView($keyboard);
 			var controller = new MidiController(keyboardObj);
+
+			$scope.controller = controller;
 
 			$scope.playOnClick = function() {
 				if($scope.playing) {
@@ -64,7 +90,7 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 			};
 
 			$scope.recordOnClick = function() {
-				if(!$scope.recording) {
+				if(!$scope.controller.recording) {
 					controller.record();
 				} else {
 					controller.stopRecord();
@@ -92,11 +118,18 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 						$scope.$apply();
 					});
 				};
-				MidiData.loadRemoteMidi('/midiPianoOnline/attachments/empty.mid', function(midiDataObj) {
+				MidiData.loadRemoteMidi('/midiPianoOnline/attachments/minute_waltz.mid', function(midiDataObj) {
 					controller.load(midiDataObj);
 					$scope.loading = false;
 					$scope.$apply();
 				});
+
+				$scope.switchMode = function() {
+					if(controller.mode == 'playing')
+						controller.setEditingMode();
+					else
+						controller.setPlayMode();
+				};
 
 				controller.setInstructmentSet(WebAudioInstructmentNode.instructmentSet);
 
@@ -116,13 +149,13 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 					$progressBar.slider('option', {
 						value: this.tick
 					});
-				}).on('evt_finish', function() {
-					if($scope.playing) $scope.playOnClick();
-					$scope.$apply();
-				}).on('evt_record', function() {
-					$scope.recording = true;
-				}).on('evt_stopRecord', function() {
-					$scope.recording = false;
+					if(!$scope.$$phase) $scope.$apply();
+				}).on('evt_autopause', function() {
+					if($scope.playing) {
+						$scope.playing = false;
+						controller.pause();
+					}
+					if(!$scope.$$phase) $scope.$apply();
 				});
 
 				$scope.backwardOnClick = function() {

@@ -10,10 +10,8 @@ define(function() {
         var keyArray = {};
         var barArray = {};
 
-        var key_dbound = 21, key_ubound = 108;
+        var key_dbound = 21, key_ubound = 108, screen_path, screen_time = 3;
         var whitekey_width, blackkey_width;
-
-        var screen_time = 3;
 
         var refreshBarView = function () {
             $(".piano-bar").remove();
@@ -21,25 +19,39 @@ define(function() {
             barArray = [];
         };
 
-        var generateBar = function (channelId, note, realAbsoluteTime, realDuringTime, realNowTime, barId, isPause) {
-            if (realNowTime >= realAbsoluteTime + realDuringTime) return;
+        var standard_tempo = tempo = 120;
+        var ticksPerBeat = 480;
+        function setTempo(newTempo) {
+            tempo = newTempo;
+            refreshBarView();
+        }
+
+        function setTicksPerBeat(newTicksPerBeat) {
+            ticksPerBeat = newTicksPerBeat;
+        }
+
+        var generateBar = function(channelId, note, absoluteTicks, lastTime, nowTick, barId, isPause) {
+            if (nowTick >= absoluteTicks + lastTime) return;
             var index = barId;
             if (barArray[index]) return;
 
-            var $ele = $("<div/>").data('channel', channelId).data('note', note).data('barId', barId);
+            var $ele = $("<div/>").data('channel', channelId).data('note', note).data('absoluteTicks', absoluteTicks).data('barId', barId);
             barArray[index] = $ele;
 
-            if (realDuringTime <= 0) realDuringTime = 0.01;  // a short bar
+            if (lastTime <= 0) lastTime = 10;  // a "short open" bar
 
             var $key = keyArray[note];
 
-            var screen_path = getPosition($key.get(0)).top;
-            var velocity = screen_path / screen_time;
-            var height = realDuringTime * velocity;
+            screen_path = getPosition($key.get(0)).top;
+            var velocity = screen_path / screen_time * tempo / standard_tempo;
+            var ticksToLenCoeff = 60 * velocity / tempo / ticksPerBeat;
+            var height = ticksToLenCoeff * lastTime;
 
-            var toTopTime = realAbsoluteTime - screen_time - realNowTime + realDuringTime;
-            var deleteTime = (toTopTime + screen_time) * 1000;
-            var top = -toTopTime * velocity;
+            var toTopTick = absoluteTicks + lastTime - nowTick - screen_path / ticksToLenCoeff;
+            var top = - toTopTick * ticksToLenCoeff;
+            var deleteTime = (toTopTick * ticksToLenCoeff + screen_path) / velocity;
+
+            deleteTime = deleteTime * 1000;
 
             $ele.css({
                 width: (isBlackKey(note) ? blackkey_width : whitekey_width) + "%",
@@ -48,19 +60,18 @@ define(function() {
                 top: top + 'px'
             }).addClass("piano-bar");
 
-            if(!isPause)
+            $ele.insertBefore($insertPoint);
+
+            if(!isPause) {
                 $ele.animate({
                     top: screen_path + 'px'
                 }, deleteTime, 'linear');
-
-            $ele.insertBefore($insertPoint);
-
-            if(!isPause)
                 window.mySetTimeout(function () {
                     if (barArray[index] && barArray[index].get(0) == $ele.get(0))
                         barArray[index] = undefined;
                     $ele.remove();
                 }, deleteTime);
+            }
         };
 
         var pressKey = function (note, autoRelease) {
@@ -89,7 +100,7 @@ define(function() {
             whitekey_width = 98.0 / whiteKeyNum;
             blackkey_width = whitekey_width * 0.6;
             for(var keyId = key_dbound; keyId <= key_ubound; keyId++) {
-                var $keyDiv = $("<div/>").addClass('piano-keyboard-key').data('note', keyId);
+                var $keyDiv = $("<div/>").addClass('piano-keyboard-key').data('note', keyId).data('pressed', false);
                 var basicCss = {};
                 if(isBlackKey(keyId)) {
                     basicCss['width'] = blackkey_width + "%";
@@ -110,17 +121,20 @@ define(function() {
                 keyArray[keyId] = $keyDiv;
             }
             $(".piano-keyboard-key").mousedown(function() {
-                var note = $(this).data('note');
+                var note = $(this).data('pressed', true).data('note');
                 pressKey(note);
                 $this.trigger('MidiView:mousedown', note);
             }).mouseup(function() {
-                var note = $(this).data('note');
+                var note = $(this).data('pressed', false).data('note');
                 releaseKey(note);
                 $this.trigger('MidiView:mouseup', note);
             }).mouseleave(function() {
-                var note = $(this).data('note');
-                releaseKey(note);
-                $this.trigger('MidiView:mouseup', note);
+                var $self = $(this);
+                if($self.data('pressed')) {
+                    var note = $self.data('pressed', false).data('note');
+                    releaseKey(note);
+                    $this.trigger('MidiView:mouseup', note);
+                }
             });
         };
 
@@ -135,7 +149,9 @@ define(function() {
             releaseKey: releaseKey,
             getKeyElement: function (keyId) {
                 return keyArray[keyId];
-            }
+            },
+            setTempo: setTempo,
+            setTicksPerBeat: setTicksPerBeat
         };
 
         $this = $(ret);

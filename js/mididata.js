@@ -35,9 +35,17 @@ define(['OutputStream', 'jasmid-MidiFile'], function(OutputStream, MidiFile) {
             // calculate absoluteTick for each event and lastTime for each noteOn event
             var lastNoteOnTickAt = {};
             self.totalTicks = 0;
+
             function noteIdx(channel, note) { return channel * 0x100 + note; }
+            function ticksToMs(ticks, beatsPerMinute) {
+                var msPerTick = 60000 / (midiFileObj.header.ticksPerBeat * beatsPerMinute);
+                return msPerTick * ticks;
+            }
+
+            var currentEventAtTrackId = [];
             for(var i=0; i<midiFileObj.tracks.length; i++) {
                 var absoluteTicks = 0;
+                currentEventAtTrackId = currentEventAtTrackId.concat(-1);
                 for(var j=0; j<midiFileObj.tracks[i].length; j++) {
                     var event = midiFileObj.tracks[i][j];
                     absoluteTicks += event.deltaTime;
@@ -56,7 +64,6 @@ define(['OutputStream', 'jasmid-MidiFile'], function(OutputStream, MidiFile) {
                                 midiFileObj.tracks[lastinfo[0]][lastinfo[1]].lastTime = absoluteTicks - midiFileObj.tracks[lastinfo[0]][lastinfo[1]].absoluteTicks;
                                 lastNoteOnTickAt[noteIdx(event.channel, event.noteNumber)] = undefined;
                             }
-                            break;
                     }
                 }
                 self.totalTicks = Math.max(self.totalTicks, absoluteTicks);
@@ -67,10 +74,41 @@ define(['OutputStream', 'jasmid-MidiFile'], function(OutputStream, MidiFile) {
                     midiFileObj.tracks[lastinfo[0]][lastinfo[1]].lastTime = -1; // no corresponding noteOff event
                 }
             }
+
+            self.setTempoEvent = [];
+            self.totalTime = 0;
+            var absoluteTime = 0, finishFlag = false, beatsPerMinute = 120;
+            absoluteTicks = 0;
+            while(!finishFlag) {
+                var deltatime = 99999999;
+                finishFlag = true;
+                for(var i=0; i<midiFileObj.tracks.length; i++) {
+                    if(currentEventAtTrackId[i]+1 >= midiFileObj.tracks[i].length) continue;
+                    finishFlag = false;
+                    deltatime = Math.min(deltatime, midiFileObj.tracks[i][currentEventAtTrackId[i]+1].absoluteTicks - absoluteTicks);
+                }
+                if(finishFlag) break;
+                absoluteTicks += deltatime;
+                absoluteTime += ticksToMs(deltatime, beatsPerMinute);
+                for(var i=0; i<midiFileObj.tracks.length; i++) {
+                    if(currentEventAtTrackId[i]+1 >= midiFileObj.tracks[i].length) continue;
+                    var event = midiFileObj.tracks[i][currentEventAtTrackId[i]+1];
+                    if(event.absoluteTicks === absoluteTicks) {
+                        currentEventAtTrackId[i] += 1;
+                        event.absoluteTime = absoluteTime;
+                        if(event.subtype === 'setTempo') {
+                            beatsPerMinute = 60000000 / event.microsecondsPerBeat;
+                            self.setTempoEvent = self.setTempoEvent.concat(event);
+                        }
+                    }
+                }
+            }
+            self.totalTime = absoluteTime;
         }
 
-        function insertEvent(event, trackId, tick) {
+        function insertEvent(event, trackId, tick, time) {
             event.absoluteTicks = tick;
+            event.absoluteTime = time;
             event.lastTime = 1;
 
             var track = midiFileObj.tracks[trackId];
@@ -91,8 +129,9 @@ define(['OutputStream', 'jasmid-MidiFile'], function(OutputStream, MidiFile) {
             if(lastEvent) lastEventTick = lastEvent.absoluteTicks;
             if(idx === -1) { // recorded after "end of track"
                 nextEvent = track[track.length-1];
-                nextEvent.absoluteTicks = tick+10;
-                nextEvent.setDeltaTime(10);
+                nextEvent.absoluteTicks = tick;
+                nextEvent.absoluteTime = time;
+                nextEvent.setDeltaTime(0);
                 idx = track.length-1;
             }
 
@@ -102,7 +141,6 @@ define(['OutputStream', 'jasmid-MidiFile'], function(OutputStream, MidiFile) {
                 track.slice(0, idx)
                     .concat(event)
                     .concat(track.slice(idx, track.length));
-
         }
 
         self = {
