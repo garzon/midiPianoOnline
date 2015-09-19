@@ -1,5 +1,6 @@
 define(function(require) {
     var WebAudioPianoNode = require('WebAudioPianoNode');
+    var WebAudioHornNode = require('WebAudioHornNode');
 
     function WebAudioController() {
         if(WebAudioController._instance !== null)
@@ -15,7 +16,7 @@ define(function(require) {
 
     WebAudioController._instance = null;
 
-    WebAudioController.defaultInstructmentNode = WebAudioPianoNode;
+    WebAudioController.defaultInstructmentNode = WebAudioHornNode;
 
     WebAudioController.instance = function() {
         if(WebAudioController._instance !== null) return WebAudioController._instance;

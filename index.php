@@ -8,7 +8,8 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 
 
 <div class="dialog" data-title="Devices">
-	<div>MIDI Input:<x-webmidiinput id="x-webmidi-input" autoreselect="true"></x-webmidiinput></div>
+	<wm-pckeyboard id="pckeyboard"></wm-pckeyboard>
+	<div>MIDI Input:<x-webmidiinput id="x-webmidi-input" additionalid="pckeyboard" autoselect="PC-Keyboard" autoreselect="true"></x-webmidiinput></div>
 	<div>MIDI Output:<x-webmidioutput id="x-webmidi-output" autoreselect="true"></x-webmidioutput></div>
 </div>
 

@@ -6,7 +6,7 @@ define(function(require) {
         this.synth = WebAudioPianoNode.synth;
     });
 
-    WebAudioInstructmentNode.registerInstructmentId(0, WebAudioPianoNode);
+    WebAudioInstructmentNode.registerInstructmentId(3, WebAudioPianoNode);
 
     WebAudioPianoNode.synth = WebAudioSynth([
         [57.421875, 0.013809918832369057, 0.10809865063735553],

@@ -251,7 +251,6 @@ define(function(require) {
                 this.time = this.midiFileObj.tracks[i][this.tracksCurrentEvent[i]].absoluteTime;
             }
         }
-
     };
 
     MidiController.sameEvent = function(ev1, ev2) {
