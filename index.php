@@ -197,6 +197,11 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 					var data = Stream(asciiArray2Binary([0x60, 0x80+controller.currentChannel, note, 0x60]));
 					var event = MidiFile().readEvent(data);
 					controller.handleEvent(event, true);
+				}).on('MidiView:dragged', function(e, info) {
+					controller.removeEvent(info.old_trackId, info.old_absoluteTicks, info.old_note, info.old_channel);
+					controller.removeEvent(info.old_trackId, info.old_absoluteTicks+info.lastTime, info.old_note, info.old_channel);
+					controller.insertNoteOnEvent(controller.currentChannel, info.absoluteTicks, info.note, info.volume);
+					controller.insertNoteOffEvent(controller.currentChannel, info.absoluteTicks+info.lastTime, info.note);
 				});
 
 				window.addEventListener('midiin-event:x-webmidi-input', function(e) {

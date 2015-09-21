@@ -143,12 +143,42 @@ define(['OutputStream', 'jasmid-MidiFile'], function(OutputStream, MidiFile) {
                     .concat(track.slice(idx, track.length));
         }
 
+        function removeEvent(trackId, tick, note, channel) {
+            var track = midiFileObj.tracks[trackId];
+            var haystack = [];
+            for(var i in track) {
+                haystack = haystack.concat(track[i].absoluteTicks);
+            }
+            var idx = binarySearch(haystack, tick, 99999999, 0, track.length-1);
+            while(idx !== -1 && idx < track.length && track[idx].absoluteTicks === tick && (track[idx].channel !== channel || track[idx].noteNumber !== note)) {
+                idx++;
+            }
+            if(idx === -1 || idx >= track.length || track[idx].absoluteTicks !== tick || track[idx].channel !== channel || track[idx].noteNumber !== note) return;
+
+            var lastEvent = undefined, nextEvent = undefined;
+            if(idx > 0) lastEvent = track[idx-1];
+            if(idx !== track.length-1) nextEvent = track[idx+1];
+
+            var event = track[idx];
+
+            if(nextEvent) {
+                if(lastEvent)
+                    nextEvent.setDeltaTime(nextEvent.absoluteTicks - lastEvent.absoluteTicks);
+                else nextEvent.setDeltaTime(nextEvent.absoluteTicks);
+            }
+
+            midiFileObj.tracks[trackId] = track.slice(0, idx).concat(track.slice(idx+1, track.length));
+
+            return event;
+        }
+
         self = {
             header: midiFileObj.header,
             tracks: midiFileObj.tracks,
             save: save,
             reload: reload,
-            insertEvent: insertEvent
+            insertEvent: insertEvent,
+            removeEvent: removeEvent
         };
 
         return self;

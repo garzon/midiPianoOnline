@@ -34,7 +34,7 @@
 
 .piano-bar {
     z-index: -1;
-    position: absolute;
+    position: absolute !important;
     border: 1px solid black;
 }
 

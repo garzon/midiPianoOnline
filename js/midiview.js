@@ -34,7 +34,64 @@ define(function() {
             ticksPerBeat = newTicksPerBeat;
         }
 
-        var generateBar = function(channelId, note, absoluteTicks, lastTime, nowTick, barId, isPause) {
+        var nowTick;
+
+        function setNow(now_tick) {
+            nowTick = now_tick;
+        }
+
+        var keyLeftArray = {};
+
+        var calculateInfoFromPos = function(ele) {
+            var $ele = $(ele);
+            var pos = getPosition(ele);
+            var left = pos.left;
+            var top = pos.top;
+            var height = $ele.height();
+
+            var idx = binarySearch(keyLeftArray, left, 100000, 0, keyLeftArray.length-1);
+            // idx >= 1
+
+            var note;
+
+            if(idx == 1) {
+                note = key_dbound;
+            } else {
+                if(idx == keyLeftArray.length-1) {
+                    note = key_ubound;
+                } else {
+                    if(Math.abs(keyLeftArray[idx] - left) < Math.abs(keyLeftArray[idx-1] - left)) {
+                        note = key_dbound + idx - 1;
+                    } else {
+                        note = key_dbound + idx - 2;
+                    }
+                }
+            }
+
+            screen_path = getPosition(keyArray[note].get(0)).top;
+            var velocity = screen_path / screen_time * tempo / standard_tempo;
+            var ticksToLenCoeff = 60 * velocity / tempo / ticksPerBeat;
+
+            var absoluteTicks = (screen_path - (top + height)) / ticksToLenCoeff + nowTick;
+            var lastTime = height / ticksToLenCoeff;
+
+            var old_absoluteTicks = $ele.data('absoluteTicks');
+            var old_channel = $ele.data('channel');
+            var old_note = $ele.data('note');
+            var old_barId = $ele.data('barId');
+
+            return {
+                old_absoluteTicks: old_absoluteTicks,
+                old_channel: old_channel,
+                old_note: old_note,
+                old_barId: old_barId,
+                note: note,
+                lastTime: lastTime,
+                absoluteTicks: absoluteTicks
+            };
+        };
+
+        var generateBar = function(track, channelId, note, volume, absoluteTicks, lastTime, barId, isPause, isEditable) {
             if (nowTick >= absoluteTicks + lastTime) return;
             var index = barId;
             if (barArray[index]) return;
@@ -42,7 +99,27 @@ define(function() {
             var $ele = $("<div/>").data('channel', channelId).data('note', note).data('absoluteTicks', absoluteTicks).data('barId', barId);
             barArray[index] = $ele;
 
-            if (lastTime <= 0) lastTime = 10;  // a "short open" bar
+            if(lastTime <= 0) lastTime = 10;  // a "short open" bar
+
+            if(isEditable) {
+                $ele.draggable({
+                    stop: function() {
+                        var info = calculateInfoFromPos(this);
+                        info.lastTime = lastTime;
+                        info.old_trackId = track;
+                        info.volume = volume;
+                        $(this).data('channel', channelId)
+                            .data('note', info.note)
+                            .data('absoluteTicks', info.absoluteTicks)
+                            .data('barId', barId)
+                            .css({
+                                left: (getPosition(keyArray[info.note].get(0)).left * 100 / innerWidth) + '%',
+                                width: (isBlackKey(info.note) ? blackkey_width : whitekey_width) + "%"
+                            });
+                        $this.trigger('MidiView:dragged', info);
+                    }
+                });
+            }
 
             var $key = keyArray[note];
 
@@ -50,7 +127,6 @@ define(function() {
             var velocity = screen_path / screen_time * tempo / standard_tempo;
             var ticksToLenCoeff = 60 * velocity / tempo / ticksPerBeat;
             var height = ticksToLenCoeff * lastTime;
-
             var toTopTick = absoluteTicks + lastTime - nowTick - screen_path / ticksToLenCoeff;
             var top = - toTopTick * ticksToLenCoeff;
             var deleteTime = (toTopTick * ticksToLenCoeff + screen_path) / velocity;
@@ -102,6 +178,20 @@ define(function() {
             return isBasicBlackKey[id % 12];
         };
 
+        var resetKeyLeftArr = function() {
+            keyLeftArray = [-99999];
+            for(var keyId = key_dbound; keyId <= key_ubound; keyId++) {
+                var res = getPosition(keyArray[keyId].get(0));
+                keyLeftArray = keyLeftArray.concat(res.left);
+            }
+            keyLeftArray = keyLeftArray.concat(99999);
+        };
+
+        var onWindowResize = function() {
+            refreshBarView();
+            resetKeyLeftArr();
+        };
+
         var render = function () {
             var whiteKeyNum = 0;
             for(var keyId = key_dbound; keyId <= key_ubound; keyId++)
@@ -145,6 +235,9 @@ define(function() {
                     $this.trigger('MidiView:mouseup', note);
                 }
             });
+
+            resetKeyLeftArr();
+            window.addEventListener('resize', onWindowResize);
         };
 
         var scoring = function(note, score) {
@@ -162,8 +255,6 @@ define(function() {
             $ele.animate({top: '-=10'}).fadeOut(function() { $(this).remove(); }).insertBefore($insertPoint);
         };
 
-        window.addEventListener('resize', refreshBarView);
-
         var ret = {
             render: render,
             generateBar: generateBar,
@@ -172,7 +263,8 @@ define(function() {
             releaseKey: releaseKey,
             setTempo: setTempo,
             setTicksPerBeat: setTicksPerBeat,
-            scoring: scoring
+            scoring: scoring,
+            setNow: setNow
         };
 
         $this = $(ret);

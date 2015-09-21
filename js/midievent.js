@@ -1,7 +1,8 @@
 define(['OutputStream', 'jasmid-Stream'], function(OutputStream, Stream) {
 
-    MidiEvent = function() {
-        this.rawData = '';
+    MidiEvent = function(raw) {
+        if(typeof raw === 'undefined') raw = '';
+        this.rawData = raw;
     };
 
     MidiEvent.prototype.setDeltaTime = function(tick) {

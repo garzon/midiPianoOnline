@@ -1,6 +1,7 @@
 define(function(require) {
     var WebAudioChannel = require('WebAudioChannel');
     var MidiEvent = require('MidiEvent');
+    var OutputStream = require('OutputStream');
 
     var playMode = 'playing', recordMode = 'editing';
 
@@ -77,6 +78,7 @@ define(function(require) {
     };
 
     MidiController.prototype._createBarInView = function() {
+        this.midiKeyboardObj.setNow(this.tick);
         var findEventToShowInTicks = this.msToTicks(5000) + this.tick;
         for(var i=0; i<this.midiFileObj.tracks.length; i++) {
             var evtPointer = this.tracksCurrentEvent[i];
@@ -85,8 +87,8 @@ define(function(require) {
                 var event = this.midiFileObj.tracks[i][evtPointer];
                 if (event.subtype == 'noteOn') {
                     var barId = event.channel + '-' + event.noteNumber + '-' + event.absoluteTicks;
-                    this.midiKeyboardObj.generateBar(event.channel, event.noteNumber,
-                        event.absoluteTicks, event.lastTime, this.tick, barId, this._pause);
+                    this.midiKeyboardObj.generateBar(i, event.channel, event.noteNumber, event.velocity,
+                        event.absoluteTicks, event.lastTime, barId, this._pause, this.mode === recordMode);
                 }
                 evtPointer++;
             }
@@ -97,7 +99,7 @@ define(function(require) {
         var p = this.tick + ticksToMeasure;
         while(p <= findEventToShowInTicks) {
             var barId = '-1-21-' + p;
-            this.midiKeyboardObj.generateBar(-1, 21, p, -1, this.tick, barId, this._pause);
+            this.midiKeyboardObj.generateBar(-1, -1, 21, 0, p, -1, barId, this._pause);
             p += ticksPerMeasure;
         }
         if(this.mode !== recordMode) return;
@@ -105,7 +107,7 @@ define(function(require) {
         p = this.tick + ticksToBeat;
         while(p <= findEventToShowInTicks) {
             var barId = '-2-21-' + p;
-            this.midiKeyboardObj.generateBar(-2, 21, p, -1, this.tick, barId, this._pause);
+            this.midiKeyboardObj.generateBar(-1, -2, 21, 0, p, -1, barId, this._pause);
             p += this.ticksPerBeat;
         }
     };
@@ -271,6 +273,46 @@ define(function(require) {
 
     MidiController.prototype.setMicrosecondsPerBeat = function(microsecondsPerBeat) {
         this.setTempo(60000000 / microsecondsPerBeat);
+    };
+
+    MidiController.prototype.insertEvent = function(event, track, tick) {
+        this.midiFileObj.insertEvent(event, track, tick, -1);
+    };
+
+    MidiController.prototype.removeEvent = function(trackId, tick, note, channel) {
+        return this.midiFileObj.removeEvent(trackId, tick, note, channel);
+    };
+
+    MidiController.prototype.insertNoteOnEvent = function(channel, tick, note, volume) {
+        var raw = new OutputStream();
+        raw.writeInt8(0x60);  // dummy deltatime, will be overrided
+        raw.writeInt8(channel+0x90);
+        raw.writeInt8(note);
+        raw.writeInt8(volume);
+        var event = new MidiEvent(raw.getOutput());
+        event.channel = channel;
+        event.type = 'channel';
+        event.noteNumber = note;
+        event.velocity = volume;
+        event.subtype = 'noteOn';
+
+        this.insertEvent(event, this.currentTrack, tick);
+    };
+
+    MidiController.prototype.insertNoteOffEvent = function(channel, tick, note) {
+        var raw = new OutputStream();
+        raw.writeInt8(0x60);  // dummy deltatime, will be overrided
+        raw.writeInt8(channel+0x80);
+        raw.writeInt8(note);
+        raw.writeInt8(0);
+        var event = new MidiEvent(raw.getOutput());
+        event.channel = channel;
+        event.type = 'channel';
+        event.noteNumber = note;
+        event.velocity = 0;
+        event.subtype = 'noteOff';
+
+        this.insertEvent(event, this.currentTrack, tick);
     };
 
     MidiController.prototype.handleEvent = function(event, isFromView) {
