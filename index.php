@@ -72,8 +72,10 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 			return min + ':' + s;
 		};
 
-		require(['MidiController', 'WebAudioInstructmentNode', 'WebMidiInstructmentNode', 'MidiView', 'MidiData', 'jasmid-MidiFile', 'jasmid-Stream', 'OutputStream'],
-		function(MidiController, WebAudioInstructmentNode, WebMidiInstructmentNode, MidiView, MidiData, MidiFile, Stream, OutputStream) {
+		require(['WebAudioFluidPianoNode'], function(WebAudioFluidPianoNode) {
+
+		require(['MidiController', 'WebAudioInstructmentNode', 'WebMidiInstructmentNode', 'MidiView', 'MidiData', 'jasmid-MidiFile', 'jasmid-Stream'],
+		function(MidiController, WebAudioInstructmentNode, WebMidiInstructmentNode, MidiView, MidiData, MidiFile, Stream) {
 			var $keyboard = $(".piano-keyboard");
 			var keyboardObj = MidiView($keyboard);
 			var controller = new MidiController(keyboardObj);
@@ -215,6 +217,8 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 				});
 
 			});
+		});
+
 		});
 	});
 </script>

@@ -102,16 +102,35 @@ function asciiArray2Binary(arr) {
     return string2binary(ret);
 }
 
-function hexEncode(str) {
-    var ret = '';
-    var list = {0:0, 1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8:8, 9:9, 10:'a', 11:'b', 12:'c', 13:'d', 14:'e', 15:'f'};
-    for(var i in str) {
-        var code = str.charCodeAt(i);
-        ret += list[(code & 0xF0) >> 4];
-        ret += list[code & 0xF];
-    }
-    return ret;
-}
+(function() {
+    var list = {
+        0: 0,
+        1: 1,
+        2: 2,
+        3: 3,
+        4: 4,
+        5: 5,
+        6: 6,
+        7: 7,
+        8: 8,
+        9: 9,
+        10: 'a',
+        11: 'b',
+        12: 'c',
+        13: 'd',
+        14: 'e',
+        15: 'f'
+    };
+    window.hexEncode = function(str) {
+        var ret = '';
+        for (var i in str) {
+            var code = str.charCodeAt(i);
+            ret += list[(code & 0xF0) >> 4];
+            ret += list[code & 0xF];
+        }
+        return ret;
+    };
+})();
 
 // set up jquery ui components
 $document.ready(function() {
@@ -122,3 +141,12 @@ $document.ready(function() {
         });
     });
 });
+
+(function() {
+    var list = {0: 'C', 1:'Db', 2:'D', 3: 'Eb', 4: 'E', 5: 'F', 6: 'Gb', 7: 'G', 8: 'Ab', 9: 'A', 10: 'Bb', 11: 'B'};
+    window.noteToName = function(note) {
+        var octave = Math.floor(note / 12) - 1;
+        var name = list[note % 12];
+        return name + octave;
+    };
+})();

@@ -93,7 +93,7 @@ define(['WebAudioInstructmentNode'], function(WebAudioInstructmentNode) {
 
     var ret = New(WebAudioHornNode);
 
-    WebAudioInstructmentNode.registerInstructmentId(0, ret);
+    WebAudioInstructmentNode.registerInstructmentId(4, ret);
 
     return ret;
 });
