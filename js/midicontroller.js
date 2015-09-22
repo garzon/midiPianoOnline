@@ -269,17 +269,19 @@ define(function(require) {
     MidiController.prototype.setTimeSignature = function(numerator, denominator) {
         this.beatsPerMeasure = numerator;
         this.midiKeyboardObj.refreshBarView();
-    }
+    };
 
     MidiController.prototype.setMicrosecondsPerBeat = function(microsecondsPerBeat) {
         this.setTempo(60000000 / microsecondsPerBeat);
     };
 
     MidiController.prototype.insertEvent = function(event, track, tick) {
+        console.log('insert', event, tick);
         this.midiFileObj.insertEvent(event, track, tick, -1);
     };
 
     MidiController.prototype.removeEvent = function(trackId, tick, note, channel) {
+        console.log('remove', note, tick);
         return this.midiFileObj.removeEvent(trackId, tick, note, channel);
     };
 
@@ -400,8 +402,8 @@ define(function(require) {
         this.totalTicks = this.midiFileObj.totalTicks;
         this.totalTime = this.midiFileObj.totalTime;
         this._pause = false;
-        this._playLoop(this._findNextDeltatime());
         this.midiKeyboardObj.refreshBarView();
+        this._playLoop(this._findNextDeltatime());
         this.$this.trigger('evt_load');
         this.$this.trigger('evt_play');
     };

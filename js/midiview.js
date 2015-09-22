@@ -86,8 +86,8 @@ define(function() {
                 old_note: old_note,
                 old_barId: old_barId,
                 note: note,
-                lastTime: lastTime,
-                absoluteTicks: absoluteTicks
+                lastTime: Math.round(lastTime),
+                absoluteTicks: Math.round(absoluteTicks)
             };
         };
 
