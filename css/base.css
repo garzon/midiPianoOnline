@@ -19,3 +19,9 @@ body {
 .progress {
     background-color: white;
 }
+
+.ui-selecting {background: #FECA40;}
+.ui-selected {background: #F39814; color: white;}
+.bg_section {margin: 0; padding: 0; height: 300px; position: relative; padding:0; border:solid 1px #DDD;}
+.bg_section > div {position: absolute; margin: 0; padding:10px; border:solid 1px #CCC; width: 100px;}
+.ui-selectable-helper {position: absolute; z-index: 100; border:1px dotted black;}

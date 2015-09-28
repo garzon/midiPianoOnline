@@ -150,10 +150,14 @@ define(['OutputStream', 'jasmid-MidiFile'], function(OutputStream, MidiFile) {
                 haystack = haystack.concat(track[i].absoluteTicks);
             }
             var idx = binarySearch(haystack, tick, 99999999, 0, track.length-1);
+            if (idx !== -1) console.log(idx, track[idx]);
             while(idx !== -1 && idx < track.length && track[idx].absoluteTicks === tick && (track[idx].channel !== channel || track[idx].noteNumber !== note)) {
                 idx++;
             }
-            if(idx === -1 || idx >= track.length || track[idx].absoluteTicks !== tick || track[idx].channel !== channel || track[idx].noteNumber !== note) return;
+            if(idx === -1 || idx >= track.length || track[idx].absoluteTicks !== tick || track[idx].channel !== channel || track[idx].noteNumber !== note) {
+                console.warn('remove - event not found: ', trackId, tick, note, channel);
+                return;
+            }
 
             var lastEvent = undefined, nextEvent = undefined;
             if(idx > 0) lastEvent = track[idx-1];

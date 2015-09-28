@@ -53,6 +53,7 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 	</div>
 </div>
 
+<div class="piano-bar-container"></div>
 <div class="piano-keyboard piano-keyboard-bottom"></div>
 
 <script>
@@ -77,7 +78,7 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 		require(['MidiController', 'WebAudioInstructmentNode', 'WebMidiInstructmentNode', 'MidiView', 'MidiData', 'jasmid-MidiFile', 'jasmid-Stream'],
 		function(MidiController, WebAudioInstructmentNode, WebMidiInstructmentNode, MidiView, MidiData, MidiFile, Stream) {
 			var $keyboard = $(".piano-keyboard");
-			var keyboardObj = MidiView($keyboard);
+			var keyboardObj = MidiView($keyboard, $(".piano-bar-container"));
 			var controller = new MidiController(keyboardObj);
 
 			$scope.controller = controller;
@@ -199,9 +200,10 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 					controller.handleEvent(event, true);
 				}).on('MidiView:dragged', function(e, info) {
 					controller.removeEvent(info.old_trackId, info.old_absoluteTicks, info.old_note, info.old_channel);
-					controller.removeEvent(info.old_trackId, info.old_absoluteTicks+info.lastTime, info.old_note, info.old_channel);
-					controller.insertNoteOnEvent(controller.currentChannel, info.absoluteTicks, info.note, info.volume);
+					controller.removeEvent(info.old_trackId, info.old_absoluteTicks+info.old_lastTime, info.old_note, info.old_channel);
+					var curr_track = controller.insertNoteOnEvent(controller.currentChannel, info.absoluteTicks, info.note, info.volume);
 					controller.insertNoteOffEvent(controller.currentChannel, info.absoluteTicks+info.lastTime, info.note);
+					info.$ele.data('trackId', curr_track);
 				});
 
 				window.addEventListener('midiin-event:x-webmidi-input', function(e) {
@@ -218,6 +220,27 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 					} else {
 						console.log('audio output');
 						controller.setInstructmentSet(WebAudioInstructmentNode.instructmentSet);
+					}
+				});
+
+				window.addEventListener('keydown', function(e) {
+					switch(e.keyCode) {
+						case 46: // delete key
+							$(".piano-bar-selected").each(function() {
+								var $ele = $(this);
+								var old_absoluteTicks = $ele.data('absoluteTicks');
+								var old_channel = $ele.data('channel');
+								var old_note = $ele.data('note');
+								var old_lastTime = $ele.data('lastTime');
+								var old_trackId = $ele.data('trackId');
+
+								controller.removeEvent(old_trackId, old_absoluteTicks, old_note, old_channel);
+								controller.removeEvent(old_trackId, old_absoluteTicks + old_lastTime, old_note, old_channel);
+
+								$ele.remove();
+							});
+							break;
+
 					}
 				});
 

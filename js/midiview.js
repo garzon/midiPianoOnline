@@ -1,5 +1,8 @@
 define(function() {
-    function MidiView($insertPoint) {
+    function MidiView($insertPoint, $barInsertPoint) {
+
+        var selected = $([]);   // list of selected objects
+        var lastselected = '';  // for the shift-click event
 
         var $this;
 
@@ -79,12 +82,16 @@ define(function() {
             var old_channel = $ele.data('channel');
             var old_note = $ele.data('note');
             var old_barId = $ele.data('barId');
+            var old_lastTime = $ele.data('lastTime');
+            var old_track = $ele.data('trackId');
 
             return {
                 old_absoluteTicks: old_absoluteTicks,
                 old_channel: old_channel,
                 old_note: old_note,
                 old_barId: old_barId,
+                old_lastTime: old_lastTime,
+                old_trackId: old_track,
                 note: note,
                 lastTime: Math.round(lastTime),
                 absoluteTicks: Math.round(absoluteTicks)
@@ -96,28 +103,55 @@ define(function() {
             var index = barId;
             if (barArray[index]) return;
 
-            var $ele = $("<div/>").data('channel', channelId).data('note', note).data('absoluteTicks', absoluteTicks).data('barId', barId);
+            var $ele = $("<div/>")
+                .data('channel', channelId)
+                .data('note', note)
+                .data('absoluteTicks', absoluteTicks)
+                .data('barId', barId)
+                .data('selected', false)
+                .data('trackId', track)
+                .data('lastTime', lastTime);
+
             barArray[index] = $ele;
 
             if(lastTime <= 0) lastTime = 10;  // a "short open" bar
 
             if(isEditable) {
+                var editCallback = function() {
+                    var velocity = screen_path / screen_time * tempo / standard_tempo;
+                    var ticksToLenCoeff = 60 * velocity / tempo / ticksPerBeat;
+
+                    var info = calculateInfoFromPos(this);
+                    info.volume = volume;
+                    info.$ele = $(this)
+                        .data('channel', channelId)
+                        .data('note', info.note)
+                        .data('absoluteTicks', info.absoluteTicks)
+                        .data('barId', barId)
+                        .data('lastTime', info.lastTime)
+                        .css({
+                            left: (getPosition(keyArray[info.note].get(0)).left * 100 / innerWidth) + '%',
+                            width: (isBlackKey(info.note) ? blackkey_width : whitekey_width) + "%",
+                            height: info.lastTime * ticksToLenCoeff + 'px'
+                        });
+
+                    $this.trigger('MidiView:dragged', info);
+                };
+
                 $ele.draggable({
                     stop: function() {
-                        var info = calculateInfoFromPos(this);
-                        info.lastTime = lastTime;
-                        info.old_trackId = track;
-                        info.volume = volume;
-                        $(this).data('channel', channelId)
-                            .data('note', info.note)
-                            .data('absoluteTicks', info.absoluteTicks)
-                            .data('barId', barId)
-                            .css({
-                                left: (getPosition(keyArray[info.note].get(0)).left * 100 / innerWidth) + '%',
-                                width: (isBlackKey(info.note) ? blackkey_width : whitekey_width) + "%"
-                            });
-                        $this.trigger('MidiView:dragged', info);
+                        editCallback.apply($ele.get(0));
+                        //$ele.get(0).click();
                     }
+                }).on('click', function() {
+                    console.log('clicked');
+                    var flag = $ele.data('selected');
+                    if(flag === false) {
+                        $ele.addClass('piano-bar-selected');
+                    } else {
+                        $ele.removeClass('piano-bar-selected');
+                    }
+                    $ele.data('selected', !flag);
                 });
             }
 
@@ -137,10 +171,11 @@ define(function() {
                 width: (isBlackKey(note) ? blackkey_width : whitekey_width) + "%",
                 left: (getPosition($key.get(0)).left * 100 / innerWidth) + '%',
                 height: height + 'px',
-                top: top + 'px'
+                top: top + 'px',
+                display: "inline-block"
             }).addClass("piano-bar").addClass(getChannelColorClassName(channelId));
 
-            $ele.insertBefore($insertPoint);
+            $ele.appendTo($barInsertPoint);
 
             if(!isPause) {
                 $ele.animate({

@@ -38,6 +38,14 @@
     border: 1px solid black;
 }
 
+.piano-bar-container {
+
+}
+
+.piano-bar-selected {
+    background-color: red !important;
+}
+
 .piano-keyboard-key-pressed--2 {
     /* a wide bar for each beat */
     height: 0 !important;
@@ -55,19 +63,19 @@
 }
 
 .piano-keyboard-key-pressed-0 {
-    background-color: aquamarine !important;
+    background-color: aquamarine;
 }
 
 .piano-keyboard-key-pressed-1 {
-    background-color: #2191c0 !important;
+    background-color: #2191c0;
 }
 
 .piano-keyboard-key-pressed-2 {
-    background-color: #eeb420 !important;
+    background-color: #eeb420;
 }
 
 .piano-keyboard-key-pressed-otherchannel {
-    background-color: orchid !important;
+    background-color: orchid;
 }
 
 .scoring {

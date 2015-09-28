@@ -80,6 +80,7 @@ define(function(require) {
     MidiController.prototype._createBarInView = function() {
         this.midiKeyboardObj.setNow(this.tick);
         var findEventToShowInTicks = this.msToTicks(5000) + this.tick;
+        if(findEventToShowInTicks > this.totalTicks*3) findEventToShowInTicks = 4000;
         for(var i=0; i<this.midiFileObj.tracks.length; i++) {
             var evtPointer = this.tracksCurrentEvent[i];
             while (evtPointer < this.midiFileObj.tracks[i].length &&
@@ -93,7 +94,6 @@ define(function(require) {
                 evtPointer++;
             }
         }
-        if(findEventToShowInTicks > this.totalTicks*3) return;
         var ticksPerMeasure = this.ticksPerBeat * this.beatsPerMeasure;
         var ticksToMeasure = (ticksPerMeasure - this.tick % ticksPerMeasure) % ticksPerMeasure;
         var p = this.tick + ticksToMeasure;
@@ -281,7 +281,7 @@ define(function(require) {
     };
 
     MidiController.prototype.removeEvent = function(trackId, tick, note, channel) {
-        console.log('remove', note, tick);
+        console.log('remove', trackId, note, tick, channel);
         return this.midiFileObj.removeEvent(trackId, tick, note, channel);
     };
 
@@ -299,6 +299,7 @@ define(function(require) {
         event.subtype = 'noteOn';
 
         this.insertEvent(event, this.currentTrack, tick);
+        return this.currentTrack;
     };
 
     MidiController.prototype.insertNoteOffEvent = function(channel, tick, note) {
@@ -315,6 +316,7 @@ define(function(require) {
         event.subtype = 'noteOff';
 
         this.insertEvent(event, this.currentTrack, tick);
+        return this.currentTrack;
     };
 
     MidiController.prototype.handleEvent = function(event, isFromView) {
