@@ -26,6 +26,10 @@
     "jquery-ui": "jqueryui#~1.11.4",
     "x-webmidi": "~0.10.13",
     "angular-ui": "~0.4.0",
-    "requirejs": "~2.1.20"
+    "requirejs": "~2.1.20",
+    "paper-menu": "PolymerElements/paper-menu#~1.1.1",
+    "paper-item": "PolymerElements/paper-item#~1.0.3",
+    "paper-tabs": "PolymerElements/paper-tabs#~1.0.4",
+    "paper-toolbar": "PolymerElements/paper-toolbar#~1.0.4"
   }
 }

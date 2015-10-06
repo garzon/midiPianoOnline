@@ -16,7 +16,25 @@ function mixin_header($pageTitle, $nav_tab, $cssPathArr = [], $extra_msg = '', $
 
 	<script src="<?= DOMAIN ?>/bower_components/webcomponentsjs/webcomponents.min.js"></script>
 	<script src="<?= DOMAIN ?>/bower_components/angular-ui/build/angular-ui.min.js"></script>
+
 	<link rel="import" href="<?= DOMAIN ?>/bower_components/polymer/polymer.html">
+
+	<link rel="import" href="<?= DOMAIN ?>/bower_components/iron-flex-layout/iron-flex-layout.html">
+
+	<link rel="import" href="<?= DOMAIN ?>/bower_components/paper-styles/color.html">
+	<link rel="import" href="<?= DOMAIN ?>/bower_components/paper-styles/typography.html">
+	<link rel="import" href="<?= DOMAIN ?>/bower_components/paper-styles/shadow.html">
+
+	<link rel="import" href="<?= DOMAIN ?>/bower_components/iron-flex-layout/classes/iron-flex-layout.html">
+	<link rel="import" href="<?= DOMAIN ?>/bower_components/paper-toolbar/paper-toolbar.html">
+	<link rel="import" href="<?= DOMAIN ?>/bower_components/paper-tabs/paper-tabs.html">
+	<link rel="import" href="<?= DOMAIN ?>/bower_components/paper-tabs/paper-tab.html">
+
+	<link rel="import" href="<?= DOMAIN ?>/bower_components/paper-item/paper-item.html">
+	<link rel="import" href="<?= DOMAIN ?>/bower_components/iron-collapse/iron-collapse.html">
+	<link rel="import" href="<?= DOMAIN ?>/bower_components/paper-menu/paper-menu.html">
+	<link rel="import" href="<?= DOMAIN ?>/bower_components/paper-menu/paper-submenu.html">
+
 	<link rel="import" href="<?= DOMAIN ?>/bower_components/x-webmidi/x-webmidirequestaccess.html">
 	<link rel="import" href="<?= DOMAIN ?>/bower_components/x-webmidi/extras/wm-pckeyboard/wm-pckeyboard.html">
 
@@ -74,14 +92,14 @@ function mixin_header($pageTitle, $nav_tab, $cssPathArr = [], $extra_msg = '', $
 	</script>
 </head>
 
-<body>
+<body <?= $nav_tab == 'player' ? "class='editor-body'" : "body-index" ?> >
 	<x-webmidirequestaccess input="true" output="true"></x-webmidirequestaccess>
 
 	<div class="row">
 		<?
 			if($nav_tab != 'player') {
 				require_once(ROOT . '/mixins/navbar.php');
-				mixin_navbar();
+				mixin_navbar($nav_tab);
 			} else {
 				require_once(ROOT . '/mixins/player_navbar.php');
 				mixin_player_navbar();

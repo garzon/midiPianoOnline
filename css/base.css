@@ -4,6 +4,11 @@
 
 body {
     width: 100%;
+    background-color: rgb(245,245,245);
+}
+
+body.editor-body {
+    width: 100%;
     background-color: #323232;
 }
 
@@ -25,3 +30,424 @@ body {
 .bg_section {margin: 0; padding: 0; height: 300px; position: relative; padding:0; border:solid 1px #DDD;}
 .bg_section > div {position: absolute; margin: 0; padding:10px; border:solid 1px #CCC; width: 100px;}
 .ui-selectable-helper {position: absolute; z-index: 100; border:1px dotted black;}
+
+
+p {
+    font-family: 方正兰亭黑, 微软雅黑, 宋体;
+}
+
+a {
+    font-family: 方正兰亭黑, 微软雅黑, 宋体;
+}
+
+small {
+    font-family: 方正兰亭黑, 微软雅黑, 宋体;
+}
+
+blockquote {
+    font-size: 14px;
+    background-color: white;
+}
+
+.listing-block {
+    border: 2px solid rgb(230,230,230);
+    box-shadow: 8px 8px 3px rgb(220,220,220);
+    background-color: white;
+}
+
+.block-page {
+    border: 2px solid rgb(230,230,230);
+    box-shadow: 8px 8px 3px rgb(220,220,220);
+    background-color: white;
+}
+
+.listing-block-unsolved {
+    box-shadow: 8px 8px 3px rgb(160,160,245);
+}
+
+.listing-block-solved {
+    box-shadow: 8px 8px 3px rgb(160,245,160);
+}
+/*
+.listing-block :hover {
+background-color: rgb(245,245,220);
+}
+*/
+blockquote p {
+    font-size: 14px;
+}
+
+.body-index {
+    background-color: rgb(245,245,245);
+}
+
+.italic {
+    font-style: italic;
+}
+
+.mySmall {
+    color: rgb(170, 170, 170);
+    font-size: 80%;
+}
+
+.myHidden {
+    display: inline-block;
+    position: absolute;
+    float: left;
+    z-index: -1;
+    width: 0px;
+    height: 0px;
+}
+
+.inline-block {
+    display: inline-block;
+}
+
+.block {
+    display: block;
+}
+
+textarea {
+    min-height: 160px;
+}
+
+.blue {
+    color: rgb(43, 162, 226);
+}
+
+.red {
+    color: rgb(226, 43, 43);
+}
+
+.black {
+    color: #000000 !important;
+}
+
+.green {
+    color: green;
+}
+
+.grey {
+    color: rgb(170, 170, 170);
+}
+
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
+
+.col-md-1-2 {
+    width: 12.5%;
+    position: relative;
+    min-height: 1px;
+    padding-right: 15px;
+    padding-left: 15px;
+    float: left;
+}
+
+.col-md-offset-1-2 {
+    margin-left: 12.5%;
+}
+
+.form-group {
+    margin: 25px 0;
+}
+
+.font-black {
+    font-family: "黑体";
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.btn-primary {
+    background-color: rgb(9, 170, 246);
+    border: 0;
+}
+
+blockquote {
+    display: inline-block;
+}
+
+p {
+    font-size: 16px;
+}
+
+.navbar-default {
+    width: 100%;
+    padding: 0 13%;
+    background-color: white;
+}
+
+.navbar .btn {
+    margin-top: 2px;
+}
+
+.navbar span {
+    margin-top: 10px;
+}
+
+.navbar paper-tab a {
+    color: black;
+}
+
+.navbar .iron-selected a {
+    color: rgb(43, 162, 226) !important;
+}
+
+.navbar-collapse .nav {
+    margin-top: 10px;
+    padding-bottom: 10px;
+}
+
+.navbar-header {
+    margin-top: 8px;
+}
+
+.navbar-fixed-top {
+    /*background-color: rgba(0,0,0,0.8);*/
+    color: white;
+}
+
+.navbar-header-logo {
+    width: 112px;
+    height: 50px;
+}
+
+.navbar-footer-logo {
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+}
+
+.navbar-bottom {
+    line-height: 15px;
+    bottom: 0;
+    margin-bottom: 0;
+    margin-top: 20px;
+    background-color: rgba(0,0,0,0.8);
+}
+
+.navbar-bottom p {
+    margin-top: 10px;
+}
+
+.listing-block {
+    width: 100%;
+}
+
+.listing-block h4 {
+    margin-top: -5px;
+}
+
+.listing-block .label {
+    margin-left: 8px;
+}
+
+.listing-block-sidebar {
+    margin-top: 35px;
+    text-align: right;
+}
+
+.listing-block-sidebar .mySmall {
+    margin-top: 8px;
+    display: block;
+}
+
+.listing-filters {
+    margin-bottom: 20px;
+}
+
+.listing-filters > span {
+    margin: 0 15px;
+}
+
+.listing-filters .horizontal-section {
+    position: absolute;
+    float: left;
+    z-index: 10;
+    padding: 0 !important;
+}
+
+.listing-filters .listing-filter:hover {
+    cursor: pointer;
+}
+
+paper-item {
+    cursor: pointer;
+}
+
+.small-avatar {
+    width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    margin-right: 5px;
+}
+
+.middle-avatar {
+    width: 60px;
+    height: 60px;
+    margin-top: 3px;
+}
+
+.resume-userinfo {
+    margin-top: 7px;
+    margin-bottom: -10px;
+}
+
+.resume-info-counter {
+    margin-top: 15px;
+}
+
+.resume-view {
+    padding-right: 40px;
+    background-color: white;
+    border-radius: 10px;
+    padding-left: 20px;
+}
+
+.bottom-board {
+    display: inline;
+    position: fixed;
+    height: 80px;
+    z-index: 11;
+    bottom: 0;
+    width: 105%;
+    vertical-align: middle;
+    background-color: rgba(40, 40, 40, 0.8);
+}
+
+.resume-bottom-board {
+    padding-top: 16px;
+}
+
+.resume-bottom-board h3 {
+    margin-top: 10px;
+}
+
+.resume-sidebar {
+    padding: 25px;
+    border-radius: 10px;
+    /*border-left: 3px dotted grey;
+    background-color: rgba(0,0,0,0.8);
+    color: white;*/
+}
+
+.resume-sidebar hr {
+    margin-bottom: 9px;
+}
+
+.resume-sidebar>div:not(.resume-userinfo) {
+    margin-left: 0;
+}
+
+.position-bottom-board .btn {
+    margin-top: 16px;
+}
+
+.bottom-board p {
+    margin-top: 11px;
+}
+
+.fabu-form-button {
+    min-width: 200px;
+}
+
+.fabu-form-hint {
+    margin-left: 5px;
+    margin-top: 15px;
+}
+
+.fabu-form-inline-tips {
+    margin-top: 6px;
+}
+
+.fabu-form-no-margin-left {
+    margin-left: 0;
+}
+
+.sublist {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.checkbox label {
+    margin-right: 20px;
+}
+
+.main-block {
+    width: 74%;
+    margin-top: 80px;
+}
+
+.box {
+    border-radius: 6px;
+    border:1px solid #ddd;
+}
+
+.sidebar-news {
+    font-size:18px;
+    line-height: 38px;
+}
+
+embed {
+    margin-top: 20px;
+}
+
+.resume-comment {
+    margin-top: 50px;
+    line-height: 22px;
+}
+
+.sidebar-block {
+    margin-top:30px;
+}
+
+#fileElem {
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+.userinfo {
+    line-height: 4px;
+    margin-top: 11px;
+}
+
+p.userinfo {
+    margin-top: 6px;
+    margin-bottom: 16px;
+}
+
+.userinfo a {
+    font-size: 12px;
+}
+
+.userextrainfo {
+    margin-left: 14px;
+    margin-bottom: 20px;
+}
+
+.userinfobox {
+    margin-left: 2px;
+}
+
+.nav-userpage {
+    margin-bottom: 15px;
+}

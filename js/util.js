@@ -151,3 +151,83 @@ $document.ready(function() {
     };
 })();
 
+
+// utils
+$document = $(document);
+
+$document.ready(function() {
+    buildNewQuery = function(baseUrl, propName, propVal) {
+        var sym = baseUrl.indexOf('?') == -1 ? '?' : '&';
+        var url = baseUrl.replace(new RegExp(propName + '=[^&]*'), '').replace(/#.*/, '');
+        return (url + sym + encodeURI(propName) + '=' + encodeURI(propVal)).replace('&&', '&').replace('?&', '?');
+    };
+
+    buildNewQueryArray = function(baseUrl, props) {
+        for (var i in props) {
+            baseUrl = buildNewQuery(baseUrl, i, props[i]);
+        }
+        return baseUrl;
+    };
+
+    buildNewUrlQuery = function(propName, propVal) {
+        var baseUrl = window.location.href;
+        return buildNewQuery(baseUrl, propName, propVal);
+    };
+
+    buildNewUrlQueryArray = function(props) {
+        var baseUrl = window.location.href;
+        return buildNewQueryArray(baseUrl, props);
+    };
+});
+
+// upload component
+$document.on('change', '.btn-file :file', function() {
+    var input = $(this),
+        numFiles = input.get(0).files ? input.get(0).files.length : 1,
+        label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+    input.trigger('fileselect', [numFiles, label]);
+});
+$document.ready(function() {
+    $('.btn-file :file').on('fileselect', function(event, numFiles, label) {
+        $(this).siblings("span").get(0).innerText = label;
+    });
+});
+
+// category component
+$document.ready(function() {
+    var $position = $(".form-category-selector");
+    $(".fabu-form-category").on('click', function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var text = $this.text();
+        $position.val(text);
+        $this.parent().parent().siblings('button').html(text + ' <span class="caret"></span>');
+    });
+});
+
+// add red stars on required fields
+$document.ready(function() {
+    $(".form-group").each(function() {
+        var $this = $(this);
+        var $children_req = $this.find("[required]");
+        if ($children_req.length != 0) {
+            var arr = $this.find("label").get();
+            for(var i in arr) {
+                arr[i].innerHTML = '<span class="red">*</span>' + arr[i].innerHTML;
+            }
+        }
+    });
+});
+
+// pager
+$document.ready(function() {
+    $(".btn-pager").on('click', function(e) {
+        e.preventDefault();
+        window.location = buildNewUrlQuery('page', $(this).data('page'));
+    });
+});
+
+$document.ready(function() {
+    var nav_height = $(".navbar-bottom").height();
+    $($(".main-block")[0]).css({minHeight: innerHeight - nav_height - 102 + "px"});
+});

@@ -3,3 +3,5 @@ bower_components/*
 *.wav
 *.mid
 *.midi
+*.inc.php
+secret*
