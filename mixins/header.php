@@ -75,7 +75,7 @@ function mixin_header($pageTitle, $nav_tab, $cssPathArr = [], $extra_msg = '', $
 </head>
 
 <body>
-	<x-webmidirequestaccess sysex="false" input="true" output="true"></x-webmidirequestaccess>
+	<x-webmidirequestaccess input="true" output="true"></x-webmidirequestaccess>
 
 	<div class="row">
 		<?
@@ -99,5 +99,3 @@ function mixin_header($pageTitle, $nav_tab, $cssPathArr = [], $extra_msg = '', $
 		if ($extra_msg_exit) exit;
 	}
 }
-
-?>

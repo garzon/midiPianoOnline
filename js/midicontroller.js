@@ -410,9 +410,13 @@ define(function(require) {
         this.$this.trigger('evt_play');
     };
 
-    MidiController.prototype.pause = function() {
+    MidiController.prototype.model_pause = function() {
         this._pause = true;
         this.mute();
+    };
+
+    MidiController.prototype.pause = function() {
+        this.model_pause();
         this.refreshBarView();
         this.$this.trigger('evt_pause');
     };

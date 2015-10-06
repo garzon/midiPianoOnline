@@ -139,6 +139,9 @@ define(function() {
                 };
 
                 $ele.draggable({
+                    start: function() {
+                        $this.trigger('MidiView:drag-start');
+                    },
                     stop: function() {
                         editCallback.apply($ele.get(0));
                         //$ele.get(0).click();

@@ -1,7 +1,7 @@
 <?php
 
 define('ROOT', dirname(__FILE__));
-define('DOMAIN', 'https://localhost/midiPianoOnline');
+define('DOMAIN', "//{$_SERVER['HTTP_HOST']}/midiPianoOnline");
 
 date_default_timezone_set('Asia/Hong_Kong');
 
