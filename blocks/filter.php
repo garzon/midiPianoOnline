@@ -22,7 +22,7 @@ Util::checkEntry();
 			<paper-menu data-prop="price" selected="<?= intval(Util::get('price', 0)) ?>">
 				<?php
 					foreach (Util::$filter_price as $id => $range) {
-						if ($id == 0) echo '<paper-item data-val="0">All Price</paper-item>';
+						if ($id == 0) echo '<paper-item data-val="0">All Rates</paper-item>';
 						else {
 							?>
 								<paper-item data-val="<?= $id ?>"><?= $range[0] ?>~<?= $range[1] ?></paper-item>
@@ -33,13 +33,13 @@ Util::checkEntry();
 			</paper-menu>
 		</div>
 	</div>
-	<?php /*
 	<div class="col-md-2 listing-filter">
-		<input type="checkbox" data-prop="solvedOnly" <?= Util::get('solvedOnly') ? 'checked="checked"' : '' ?> />
+		<input type="checkbox" data-prop="uploadedOnly" <?= Util::get('uploadedOnly') ? 'checked="checked"' : '' ?> />
 		<label>
-			只看已解出
+			No duplicate
 		</label>
 	</div>
+	<?php /*
 	<div class="col-md-2 listing-filter">
 		<input type="checkbox" data-prop="notSolvedOnly" <?= Util::get('notSolvedOnly') ? 'checked="checked"' : '' ?> />
 		<label>

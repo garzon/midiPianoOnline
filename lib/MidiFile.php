@@ -61,9 +61,9 @@ class MidiFile extends MongoContentData {
 	}
 
 	public function checkHiddenPermission($visitor) {
-		if ($visitor->isSuperman) return true;
 		if (!$this->isHidden) return true;   // 非隐藏所有人可见
 		if (!$visitor) return false;         // 隐藏至少需登录
+		if ($visitor->isSuperman) return true;
 		if ($visitor->id == $this->userId) return true;  // 主人可见
 		return false;
 	}

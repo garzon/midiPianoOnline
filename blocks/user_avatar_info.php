@@ -13,7 +13,7 @@ Util::checkEntry();
 		<p class="userinfo">
 			<a class="black" href="<?= DOMAIN ?>/user.php?id=<?= $user->id ?>"><?= htmlentities($user->name) ?></a>
 			<?php
-				if (Visitor::user()->id == $user->id) {
+				if (Visitor::user() && Visitor::user()->id == $user->id) {
 					?>
 						<a class="blue" href="<?= DOMAIN ?>/profile.php">Edit profile</a>
 					<?

@@ -1,7 +1,7 @@
 <?php
 //lianghonghao@baixing.com
 
-require("./include/class.phpmailer.php");
+require(ROOT . "/include/class.phpmailer.php");
 
 class Email {
 	public $to;
@@ -28,9 +28,9 @@ class Email {
 			$mailer->$key = $value;
 		}
 		$mailer->AddAddress($to);
-		$mailer->SetFrom('zhaopinquanzi@gmail.com', 'CTF圈子');
+		$mailer->SetFrom(EMAIL_USERNAME, 'Midi Piano Online');
 		$mailer->Subject = $subject;
-		$mailer->Body = $body ? : '空';
+		$mailer->Body = $body ? : 'None';
 		$mailer->send();
 	}
 
@@ -54,7 +54,7 @@ class Email {
 		$mailer->Send();
 		if ($mailer->ErrorInfo) {
 			echo $mailer->ErrorInfo;
-			die('快去找绵羊！邮件挂了！');
+			die('Please contact the admin. garzonou@gmail.com');
 		}
 	}
 

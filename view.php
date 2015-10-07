@@ -4,7 +4,7 @@ require_once('./init.php');
 
 extract(get_object_vars($data));
 
-$pageTitle = '题目详情';
+$pageTitle = 'View MIDI - ' . $midi->name;
 require_once(ROOT . '/mixins/header.php');
 mixin_header($pageTitle, 'view', [], $data->extra_msg, $data->extra_msg_type);
 
@@ -27,11 +27,13 @@ mixin_header($pageTitle, 'view', [], $data->extra_msg, $data->extra_msg_type);
 			<div class="row">
 				<h3>
 					<?= htmlentities('[' . $midi->category . '] ' . $midi->name) ?>
-					<? if(true) { ?>
-						<a class="btn btn-primary btn-sm btn-submitflag pull-right btn-fork" href="#">Fork</a>
-					<? } else { ?>
-						<a class="btn btn-sm btn-default pull-right" href="#">Forked</a>
-					<? } ?>
+					<? if(Visitor::user()) {
+						if(true) { ?>
+							<a class="btn btn-primary btn-sm btn-submitflag pull-right btn-fork" href="#">Fork</a>
+						<? } else { ?>
+							<a class="btn btn-sm btn-default pull-right" href="#">Forked</a>
+						<? }
+					}?>
 					<a class="btn btn-success btn-sm btn-submitflag pull-right" href="<?= DOMAIN . '/editor.php?id=' . $data->midi->id ?>">Play!</a>
 				</h3>
 				<div>
@@ -82,7 +84,7 @@ mixin_header($pageTitle, 'view', [], $data->extra_msg, $data->extra_msg_type);
 			</div>
 		</div>
 	</div>
-	<div class="btn btn-default" style="width: 50px; margin-left: -20px; position: relative; float: left;" ng-click="sidebar_switch()">{{isSiderbarShown ? 'Hide' : '展开'}}</div>
+	<div class="btn btn-default" style="width: 50px; margin-left: -20px; position: relative; float: left;" ng-click="sidebar_switch()">{{isSiderbarShown ? 'Hide' : 'Expand'}}</div>
 </div>
 
 <?php

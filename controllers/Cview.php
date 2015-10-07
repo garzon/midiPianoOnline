@@ -16,19 +16,23 @@ class Cview extends BaseController {
 			self::redirectToIndex();
 		}
 
-		if ($_SERVER['REQUEST_METHOD'] == 'POST' && $visitor) {
-			if (Util::post('post_type', '') == 'manager_control') {
-				if(Visitor::isSuperman()) {
+		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+			if ($visitor && Util::post('post_type', '') == 'manager_control') {
+				if(Visitor::isSuperman() || $visitor->id == $midi->userId) {
 					$midi->delete();
 					self::redirectToIndex();
 				}
 			} else {
-				$comment = new MidiComment();
-				$comment->content = Util::post('content', '');
-				$comment->userId = $visitor->id;
-				$comment->midiId = $midi->id;
-				$comment->save(true);
-				self::setExtraMsg("Successfully submitted!", self::EXTRA_MSG_SUCCESS);
+				if(!$visitor) {
+					self::setExtraMsg("Please login!", self::EXTRA_MSG_DANGER);
+				} else {
+					$comment = new MidiComment();
+					$comment->content = Util::post('content', '');
+					$comment->userId = $visitor->id;
+					$comment->midiId = $midi->id;
+					$comment->save(true);
+					self::setExtraMsg("Successfully submitted!", self::EXTRA_MSG_SUCCESS);
+				}
 			}
 		}
 

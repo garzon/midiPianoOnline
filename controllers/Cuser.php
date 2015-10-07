@@ -14,7 +14,8 @@ class Cuser extends BaseController {
 
 		$query = ['userId' => $user->id];
 
-		if ($user->id == $visitor->id) {
+		$this->data->nav_tab = '';
+		if ($visitor && $user->id == $visitor->id) {
 			$this->data->nav_tab = 2;
 			$query['isHidden'] = '*';
 		}

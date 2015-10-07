@@ -27,15 +27,14 @@ class Util {
 
 	public static function buildQueryFromFilters($query = []) {
 		if (Util::get('solvedOnly', 0)) $query['solvedList'] = Visitor::user()->id;
-		if (Util::get('notSolvedOnly', 0)) {
-			// buggy if solvedList is defined before
-			$query['solvedList'] = ['$ne' => Visitor::user()->id];
+		if (Util::get('uploadedOnly', 0)) {
+			$query['originId'] = null;
 		}
 
 		$price_groupid = intval(Util::get('price', 0));
 		if ($price_groupid) {
 			$range = Util::$filter_price[$price_groupid];
-			$query['prize'] = ['$gt' => $range[0] - 1, '$lt' => $range[1] + 1];
+			$query['price'] = ['$gt' => $range[0] - 1, '$lt' => $range[1] + 1];
 		}
 
 		$category = Util::get('category', 0);

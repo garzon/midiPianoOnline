@@ -110,7 +110,7 @@ function mixin_header($pageTitle, $nav_tab, $cssPathArr = [], $extra_msg = '', $
 	<?
 	if ($extra_msg) {
 		?>
-		<div class="main-block container alert <?= $extra_msg_type ?: '' ?>">
+		<div class="container alert <?= $extra_msg_type ?: '' ?>" style="margin-top: 150px">
 			<?= $extra_msg ?>
 		</div>
 		<?

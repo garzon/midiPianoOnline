@@ -3,6 +3,18 @@
 
 function mixin_viewad_sidebar_operations($commentTips, $shareTips, $obj = null) {
 	?>
+		<? if(Visitor::isSuperman() || (Visitor::user() && Visitor::user()->id == $obj->userId)) { ?>
+			<div id="adminOps" class="row">
+				<h3></h3>
+				<form method="post" action="" onsubmit="return confirm('Do you really want to delete this midi file?')">
+					<input type="hidden" name="post_type" value="manager_control">
+					<input type="submit" class="btn btn-danger" value="Delete" />
+					<? if ($obj && ($obj instanceof MidiFile)) { ?>
+						<a class="btn btn-default" href="<?= DOMAIN ?>/upload.php?editMidiId=<?= $obj->id ?>">Edit Info</a>
+					<? } ?>
+				</form>
+			</div>
+		<? } ?>
 		<div id="resume-comment" class="row">
 			<h3><?= $commentTips ?></h3>
 			<form method="post" action>
@@ -12,20 +24,7 @@ function mixin_viewad_sidebar_operations($commentTips, $shareTips, $obj = null) 
 				<button type="submit" class="btn btn-default">Submit</button>
 			</form>
 		</div>
-		<? if (Visitor::isSuperman()) { ?>
-			<div id="adminOps" class="row">
-				<h3>超人操作：</h3>
-				<form method="post" action="">
-					<input type="hidden" name="post_type" value="manager_control">
-					<input name='reason' placeholder="删除原因">
-					<input type="submit" value="delete" />
-				</form>
-				<? if ($obj && ($obj instanceof MidiFile)) { ?>
-					<div><a href="<?= DOMAIN ?>/upload.php?editMidiId=<?= $obj->id ?>">Edit MIDI Info</a></div>
-				<? } ?>
-			</div>
-		<? }
-		/*
+		<? /*
 	    if ($obj && ($obj instanceof Problem)) { //&& (Visitor::isSuperman() || Visitor::user()->id === $obj->userId)
 			$resumeView = ProblemView::find(['problemId' => $obj->id], ['sort' => ['createdTime' => -1]]);
 			$resumeDownloads = ProblemSolved::find(['problemId' => $obj->id], ['sort' => ['createdTime' => -1]]);

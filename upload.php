@@ -12,9 +12,9 @@ $default_price = $data->default_price;
 
 require_once(ROOT . '/mixins/fabu_category_selector.php');
 ?>
-<div class="container main-block">
+<div class="container main-block block-page">
 	<h3><?= $data->pageTitle ?></h3>
-	<h4><small>只有每个人都出一点题，我们才能在一起愉快的玩耍呀~</small></h4>
+	<h4><small>Sharing is great!</small></h4>
 
 	<form method="post" enctype="multipart/form-data" class="form-horizontal" ng-app="" ng-submit="submit()" role="form" action>
 
@@ -70,8 +70,13 @@ require_once(ROOT . '/mixins/fabu_category_selector.php');
 
 		<div class="form-group">
 			<div class="col-md-offset-2">
-				<input type="submit" class="btn btn-success btn-lg fabu-form-button" value="发布！" />
+				<input type="submit" class="btn btn-success btn-lg fabu-form-button" value="Submit!" />
 			</div>
 		</div>
 	</form>
 </div>
+
+<?php
+require_once(ROOT . '/mixins/footer.php');
+mixin_footer();
+?>

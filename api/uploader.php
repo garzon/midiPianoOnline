@@ -21,21 +21,21 @@ if(isset($_POST['data'])) {
 		$midi->introduction = '';
 		$midi->category = 'others';
 		$midi->save();
-		die("alert('successfully uploaded!');window.location.href='" . DOMAIN . "/editor.php?id={$midi->id}';");
+		die("alert('successfully saved!');window.location.href='" . DOMAIN . "/editor.php?id={$midi->id}';");
 	} else {
 		if($midi->userId == $visitor->id) {
 			// is owner, modify the file
 			$f = fopen($midi->realPath, "wb");
 			fwrite($f, $postData);
 			fclose($f);
-			die('alert("successfully uploaded!");');
+			die('alert("Successfully saved!");');
 		} else {
 			// fork
 			$midi = $midi->fork($visitor);
 			$f = fopen($midi->realPath, "wb");
 			fwrite($f, $postData);
 			fclose($f);
-			die("alert('successfully forked!');window.location.href='" . DOMAIN . "/editor.php?id={$midi->id}';");
+			die("alert('Successfully forked to your repository!');window.location.href='" . DOMAIN . "/editor.php?id={$midi->id}';");
 		}
 	}
 }
