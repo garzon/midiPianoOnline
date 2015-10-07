@@ -20,7 +20,7 @@ mixin_header($pageTitle, 'view', [], $data->extra_msg, $data->extra_msg_type);
 					</li>
 					<li role="presentation"><a href="#comment-history">Comments(<?= count($comments) ?>)</a></li>
 					<span class="pull-right resume-info-counter grey">
-						<?= $viewCount ?> Viewed
+						<?= count($midi->tipedList) ?> Likes / <?= $viewCount ?> Viewed
 					</span>
 				</ul>
 			</div>
@@ -29,18 +29,37 @@ mixin_header($pageTitle, 'view', [], $data->extra_msg, $data->extra_msg_type);
 					<?= htmlentities('[' . $midi->category . '] ' . $midi->name) ?>
 					<? if(Visitor::user()) {
 						if(true) { ?>
-							<a class="btn btn-primary btn-sm btn-submitflag pull-right btn-fork" href="#">Fork</a>
+							<a class="btn btn-primary btn-sm pull-right btn-fork" href="#">Fork</a>
 						<? } else { ?>
 							<a class="btn btn-sm btn-default pull-right" href="#">Forked</a>
 						<? }
 					}?>
-					<a class="btn btn-success btn-sm btn-submitflag pull-right" href="<?= DOMAIN . '/editor.php?id=' . $data->midi->id ?>">Play!</a>
+					<? if(Visitor::user() && !in_array(Visitor::user()->id, $midi->tipedList)) { ?>
+						<a class="btn btn-primary btn-sm pull-right btn-like" href="#">Like</a>
+					<? } else { ?>
+						<a class="btn btn-sm btn-default pull-right" href="#">Liked</a>
+					<? } ?>
 				</h3>
 				<div>
 					<p><?= nl2br(htmlentities($midi->introduction)) ?></p>
+					<? if($midi->originId) {
+						$source = MidiFile::fetch($midi->isForkedFromId);
+						if($source) {
+							?>
+							<p class="grey"><small>Forked from <a href="<?= DOMAIN . '/view.php?id=' . $source->id ?>"><?= htmlentities($source->name) ?></a></small></p>
+							<?
+						}
+						$source = MidiFile::fetch($midi->originId);
+						if($source) {
+							?>
+							<p class="grey"><small>Originally from <a href="<?= DOMAIN . '/view.php?id=' . $source->id ?>"><?= htmlentities($source->name) ?></a></small></p>
+						<?
+						}
+					 } ?>
 				</div>
 			</div>
 			<br />
+			<a class="btn btn-success btn-lg" href="<?= DOMAIN . '/editor.php?id=' . $data->midi->id ?>">Play!</a>
 			<br />
 			<div id="comment-history" class=".resume-comment">
 				<h3>Comments:</h3>
@@ -49,18 +68,14 @@ mixin_header($pageTitle, 'view', [], $data->extra_msg, $data->extra_msg_type);
 					<?php foreach ($comments as $comment) { ?>
 						<div class="row">
 							<div class="col-md-7">
-								<h4><?= date('Y-m-d', $comment->createdTime)?> <a href="<?= DOMAIN ?>/user.php?id=<?= $comment->userId ?>"><?= htmlentities(User::fetch($comment->userId)->name) ?></a>said:</h4>
+								<h4><?= date('Y-m-d', $comment->createdTime)?> <a href="<?= DOMAIN ?>/user.php?id=<?= $comment->userId ?>"><?= htmlentities(User::fetch($comment->userId)->name) ?></a> said:</h4>
 							</div>
 							<div class="col-md-5">
 								<button id="comment-zan-button-<?= $comment->id ?>" <?= MidiComment::checkVisitorCommented($comment->id) ? 'disabled="disabled"' : ''?> class="btn btn-success col-md-5" onclick="agree(<?= $comment->id ?>)">
-									Up (
-									<span id="agree_count_<?= $comment->id ?>"><?= $comment->agreeCount ?></span>
-									)
+									Up(<span id="agree_count_<?= $comment->id ?>"><?= $comment->agreeCount ?></span>)
 								</button>
 								<button id="comment-pei-button-<?= $comment->id ?>" <?= MidiComment::checkVisitorCommented($comment->id) ? 'disabled="disabled"' : ''?> class="btn btn-danger col-md-5 col-md-offset-1" onclick="disagree(<?= $comment->id ?>)">
-									Down (
-									<span id="disagree_count_<?= $comment->id ?>"><?= $comment->disagreeCount ?></span>
-									)
+									Down(<span id="disagree_count_<?= $comment->id ?>"><?= $comment->disagreeCount ?></span>)
 								</button>
 							</div>
 						</div>
@@ -98,7 +113,7 @@ mixin_footer();
 			if(text != 'succ') return;
 			var span = $('#agree_count_' + id);
 			span.html(parseInt(span.html()) + 1);
-			alert('点赞成功！');
+			alert('Successfully upvoted!');
 			$('#comment-zan-button-' + id).attr('disabled', 'disabled');
 			$('#comment-pei-button-' + id).attr('disabled', 'disabled');
 		}, 'text');
@@ -108,7 +123,7 @@ mixin_footer();
 			if(text != 'succ') return;
 			var span = $('#disagree_count_' + id);
 			span.html(parseInt(span.html()) + 1);
-			alert('吐槽成功！');
+			alert('Successfully downvoted!');
 			$('#comment-zan-button-' + id).attr('disabled', 'disabled');
 			$('#comment-pei-button-' + id).attr('disabled', 'disabled');
 		}, 'text');
@@ -134,6 +149,18 @@ mixin_footer();
 						alert(obj.msg);
 					}
 				})
+			}
+		});
+
+		$(".btn-like").on('click', function() {
+			if(confirm('Like this midi?')) {
+				$.post('<?= DOMAIN ?>/api/tip.php', {id: <?= $midi->id ?>}, function(text) {
+					if(text != 'succ') {
+						alert(text);
+						return;
+					}
+					$(".btn-like").text('Liked').removeClass("btn-like").removeClass("btn-primary").addClass("btn-default").removeEventListener('');
+				}, 'text');
 			}
 		});
 	})();

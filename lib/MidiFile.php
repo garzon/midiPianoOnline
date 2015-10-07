@@ -12,11 +12,13 @@ class MidiFile extends MongoContentData {
 	public $isHidden;
 	public $category;
 	public $viewList;
+	public $tipedList;
 
 	public function save($isUpdate = false) {
 		if(!$this->id && !$this->originId) $this->originId = null;
 		if(!$this->id) {
 			$this->viewList = [];
+			$this->tipedList = [];
 		}
 		parent::save($isUpdate);
 	}
@@ -76,5 +78,14 @@ class MidiFile extends MongoContentData {
 		$viewObj->userId = $visitor->id;
 		$viewObj->midiId = $this->id;
 		$viewObj->save();
+	}
+
+	public function tipBy(User $user) {
+		if(!in_array($user->id, $this->tipedList)) {
+			$this->tipedList []= $user->id;
+			$this->price += 1;
+			$this->save();
+			Transaction::tips($user, User::fetch($this->userId), $this);
+		}
 	}
 }

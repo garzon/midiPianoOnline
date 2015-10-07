@@ -84,7 +84,7 @@ $visitor = Visitor::user();
 				</div>
 			</div>
 			<div class="form-group">
-				<label for="location" class="col-sm-2 control-label">Location</label>
+				<label for="location" class="col-sm-2 control-label">Location/City</label>
 				<div class="col-sm-6">
 					<input class="form-control" id="location" name='location' value="<?= isset($visitor->location) ? htmlentities($visitor->location, ENT_QUOTES) : '' ?>">
 				</div>

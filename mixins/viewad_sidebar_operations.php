@@ -10,7 +10,7 @@ function mixin_viewad_sidebar_operations($commentTips, $shareTips, $obj = null) 
 					<input type="hidden" name="post_type" value="manager_control">
 					<input type="submit" class="btn btn-danger" value="Delete" />
 					<? if ($obj && ($obj instanceof MidiFile)) { ?>
-						<a class="btn btn-default" href="<?= DOMAIN ?>/upload.php?editMidiId=<?= $obj->id ?>">Edit Info</a>
+						<a class="btn btn-default" href="<?= DOMAIN ?>/upload.php?editMidiId=<?= $obj->id ?>">Edit MIDI Info</a>
 					<? } ?>
 				</form>
 			</div>

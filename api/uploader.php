@@ -18,10 +18,14 @@ if(isset($_POST['data'])) {
 		$midi = MidiFile::fetch($id)->fork($visitor);
 		$midi->name = 'noname';
 		$midi->isForkedFromId = false;
+		$midi->originId = null;
 		$midi->introduction = '';
 		$midi->category = 'others';
 		$midi->save();
-		die("alert('successfully saved!');window.location.href='" . DOMAIN . "/editor.php?id={$midi->id}';");
+		$f = fopen($midi->realPath, "wb");
+		fwrite($f, $postData);
+		fclose($f);
+		die("alert('Successfully saved! Click Go Back button to view/edit midi info.');window.location.href='" . DOMAIN . "/editor.php?id={$midi->id}';");
 	} else {
 		if($midi->userId == $visitor->id) {
 			// is owner, modify the file

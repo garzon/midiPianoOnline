@@ -25,7 +25,7 @@ Util::checkEntry();
 						if ($id == 0) echo '<paper-item data-val="0">All Rates</paper-item>';
 						else {
 							?>
-								<paper-item data-val="<?= $id ?>"><?= $range[0] ?>~<?= $range[1] ?></paper-item>
+								<paper-item data-val="<?= $id ?>"><?= $range[0] ?>~<?= $range[1] ?> Likes</paper-item>
 							<?php
 						}
 					}

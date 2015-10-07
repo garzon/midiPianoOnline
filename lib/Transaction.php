@@ -8,7 +8,7 @@ class Transaction extends MongoData {
 	public $extraData;
 	public $createdTime;
 
-	const TYPE_TIPS = 1,
+	const TYPE_DUMMY = 1,
 		TYPE_TIPED = 2,
 		TYPE_ADDMONEY = 3;
 
@@ -20,25 +20,14 @@ class Transaction extends MongoData {
 		parent::save();
 	}
 
-	public static function tips(User $payFrom, User $payTo, $price, $msg = '') {
-		$price = intval($price);
-		if ($payFrom->money < $price) throw new Exception("您的余额不足！");
-
-		$transaction_from = new self();
-		$transaction_from->transactionType = self::TYPE_DOWNLOAD;
-		$transaction_from->money = -$price;
-		$transaction_from->userId = $payFrom->id;
-		$transaction_from->extraData = ['msg' => $msg];
-		$transaction_from->save();
-		$payFrom->_addScore(-$price);
-
+	public static function tips(User $payFrom, User $payTo, MidiFile $midi) {
 		$transaction_to = new self();
-		$transaction_to->transactionType = self::TYPE_DOWNLOADED;
-		$transaction_to->money = $price;
+		$transaction_to->transactionType = self::TYPE_TIPED;
+		$transaction_to->money = 1;
 		$transaction_to->userId = $payTo->id;
-		$transaction_to->extraData = ['msg' => $msg];
+		$transaction_to->extraData = ['msg' => $payFrom->id, 'midiId' => $midi->id];
 		$transaction_to->save();
-		$payTo->_addScore($price);
+		$payTo->_addScore(1);
 	}
 
 	public static function addScore(User $payer, $money, $msg = '') {
