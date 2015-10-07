@@ -118,13 +118,15 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 				keyboardObj.render();
 
 				$scope.newOnClick = function() {
-					if(!confirm('new?')) return;
+					if(!confirm('Discard all changes?')) return;
 					controller.pause();
 					MidiData.loadRemoteMidi(midiUrl, function(midiDataObj) {
 						controller.load(midiDataObj);
 						controller.setEditingMode();
 						$scope.loading = false;
 						$scope.$apply();
+					}, function() {
+						alert('Error! Please refresh this page.')
 					});
 				};
 				MidiData.loadRemoteMidi(midiUrl, function(midiDataObj) {
@@ -176,9 +178,9 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 
 				$scope.uploadOnClick = function() {
 					var data = controller.getRaw();
-					$.post('/midiPianoOnline/uploader.php', {data: hexEncode(data)}, function() {
-						alert('succcessfully uploaded!')
-					});
+					$.post('<?= DOMAIN ?>/api/uploader.php?id=<?= Util::getInt('id', 0) ?>', {data: hexEncode(data)}, function(js) {
+						eval(js);
+					}, 'text');
 				};
 
 				$progressBar.on('slidestart', function() {
@@ -257,8 +259,3 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 		});
 	});
 </script>
-
-<?php
-require(ROOT . '/mixins/footer.php');
-mixin_footer([]);
-?>

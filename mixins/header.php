@@ -97,13 +97,13 @@ function mixin_header($pageTitle, $nav_tab, $cssPathArr = [], $extra_msg = '', $
 
 	<div class="row">
 		<?
-			if($nav_tab != 'player') {
+			//if($nav_tab != 'player') {
 				require_once(ROOT . '/mixins/navbar.php');
 				mixin_navbar($nav_tab);
-			} else {
-				require_once(ROOT . '/mixins/player_navbar.php');
-				mixin_player_navbar();
-			}
+			//} else {
+			//	require_once(ROOT . '/mixins/player_navbar.php');
+			//	mixin_player_navbar();
+			//}
 		?>
 	</div>
 

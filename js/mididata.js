@@ -188,7 +188,7 @@ define(['OutputStream', 'jasmid-MidiFile'], function(OutputStream, MidiFile) {
         return self;
     }
 
-    MidiData.loadRemoteMidi = function(path, callback) {
+    MidiData.loadRemoteMidi = function(path, callback, failcallback) {
         function string2binary(str) {
             var ret = [];
             console.log(str.length);
@@ -204,7 +204,13 @@ define(['OutputStream', 'jasmid-MidiFile'], function(OutputStream, MidiFile) {
         fetch.onreadystatechange = function() {
             if(this.readyState == 4 && this.status == 200) {
                 var data = this.responseText || "" ;
-                callback(MidiData(string2binary(data)));
+                try {
+                    var ret = MidiData(string2binary(data));
+                } catch(e) {
+                    if(typeof failcallback === 'function') failcallback(e);
+                    return;
+                }
+                callback(ret);
             }
         };
         fetch.send();

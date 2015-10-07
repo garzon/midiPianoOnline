@@ -7,11 +7,11 @@ function mixin_footer($jsPatharray = []) {
 			<div class="container">
 				<div class="row">
 					<div class="navbar-header col-md-2 col-sm-2 col-xs-12">
-						<a href="https://github.com/sixstars" target="_blank"><img class="navbar-footer-logo" src="<?= DOMAIN ?>/img/footer-logo.png" /></a>
+						<a href="<?= DOMAIN . '/index.php'?>"><img class="navbar-header-logo" src="<?= DOMAIN ?>/img/logo.png" /></a>
 					</div>
 					<div class="col-md-6 col-sm-6 col-xs-8 grey">
 						<p>Midi Piano Online</p>
-						<p class="small">Copyright. garzon</p>
+						<p class="small">Copyright. <a href="mailto:garzonou@gmail.com">garzon</a></p>
 					</div>
 					<div class="col-md-4 col-sm-4 col-xs-4 grey">
 						<p><?= date("Y-m-d H:i:s", time()) ?></p>

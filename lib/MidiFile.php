@@ -21,26 +21,41 @@ class MidiFile extends MongoContentData {
 		parent::save($isUpdate);
 	}
 
+	public static function find(array $query, array $opt = []) {
+		if(!isset($query['isHidden']))
+			$query['isHidden'] = false;
+		else unset($query['isHidden']);
+		return parent::find($query, $opt);
+	}
+
 	public function fork(User $user) {
 		$ret = new static();
-		$ret->name = $this->name;
+		$ret->name = 'Duplicate - ' . $this->name;
 		$ret->userId = $user->id;
 		$ret->introduction = $this->introduction;
 		$ret->isForkedFromId = $this->id;
 		$ret->originId = $this->originId ?: $this->id;
-		$ret->price = $this->price;
+		$ret->price = 0;
 		$ret->isHidden = false;
 		$ret->category = $this->category;
 		$ret->realPath = Attachment::copyFile($this->realPath);
 
+		$ret->save();
 		return $ret;
 	}
 
-	public function setMidiFile($field_name) {
-		if($this->realPath && strpos($this->realPath, '.mid') && file_exists($this->realPath)) {
+	public function delete() {
+		if($this->realPath && strpos($this->realPath, 'mid') && file_exists($this->realPath)) {
 			Attachment::deleteFile($this->realPath);
 		}
-		$this->realPath = Attachment::generateFilepath('.mid');
+		parent::delete();
+	}
+
+	public function setMidiFile($field_name) {
+		if($this->realPath && strpos($this->realPath, 'mid') && file_exists($this->realPath)) {
+			Attachment::deleteFile($this->realPath);
+		}
+		$this->realPath = Attachment::generateFilepath('mid');
 		move_uploaded_file($_FILES[$field_name]['tmp_name'], $this->realPath);
 		return $this;
 	}

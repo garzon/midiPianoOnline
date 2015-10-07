@@ -19,11 +19,15 @@ class Cupload extends NeedLoginController {
 			$extra_msg_type = 'alert-danger';
 
 			$user = Visitor::user();
-			if (!$editMidiFlag) $midi = new MidiFile();
+			if (!$editMidiFlag) {
+				$midi = new MidiFile();
+				$midi->isHidden = false;
+				$midi->isForkedFromId = false;
+			}
 			$midi->name = Util::post('name', '');
 			$midi->category = Util::post('category', '');
-			$midi->price = Util::postInt('price', 0);
-			$midi->content = Util::post('comment', '');
+			$midi->price = 0;
+			$midi->introduction = Util::post('introduction', '');
 			if ($midi->price > 500 || $midi->price < 0) {
 				$extra_msg = "Please input a valid price(0~500).";
 				self::setExtraMsg($extra_msg, $extra_msg_type);
@@ -41,6 +45,9 @@ class Cupload extends NeedLoginController {
 					return;
 				}
 			}
+
+			$visitor->uploadedCounter++;
+			$visitor->save();
 
 			$midi->save(true);
 			throw new RedirectException(DOMAIN . "/view.php?id={$midi->id}");

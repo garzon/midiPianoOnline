@@ -69,17 +69,6 @@ require_once(ROOT . '/mixins/fabu_category_selector.php');
 		</div>
 
 		<div class="form-group">
-			<div class="row">
-				<label for="price" class="col-md-1-2 control-label">Price：</label>
-				<div class="row col-md-10">
-					<div class="col-md-3">
-						<input type="number" class="form-control" id="price" name='price' placeholder="0-500" required="required" <?= $default_price !== null ? "value='$default_price'" : '' ?> />
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="form-group">
 			<div class="col-md-offset-2">
 				<input type="submit" class="btn btn-success btn-lg fabu-form-button" value="发布！" />
 			</div>

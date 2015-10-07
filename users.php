@@ -1,6 +1,8 @@
 <?php
 //81326073@qq.com
 
+die('under construction.');
+
 $nav_tab = 1;
 
 require_once('./init.php');

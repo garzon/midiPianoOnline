@@ -16,9 +16,9 @@ mixin_header($pageTitle, 'view', [], $data->extra_msg, $data->extra_msg_type);
 			<div class="row">
 				<ul class="nav nav-tabs">
 					<li role="presentation" class="active">
-						<a href="#">题目详情</a>
+						<a href="#">Introduction</a>
 					</li>
-					<li role="presentation"><a href="#comment-history">评论(<?= count($comments) ?>)</a></li>
+					<li role="presentation"><a href="#comment-history">Comments(<?= count($comments) ?>)</a></li>
 					<span class="pull-right resume-info-counter grey">
 						<?= $viewCount ?> Viewed
 					</span>
@@ -28,10 +28,11 @@ mixin_header($pageTitle, 'view', [], $data->extra_msg, $data->extra_msg_type);
 				<h3>
 					<?= htmlentities('[' . $midi->category . '] ' . $midi->name) ?>
 					<? if(true) { ?>
-						<a class="btn btn-primary btn-sm btn-submitflag pull-right" href="#">Fork</a>
+						<a class="btn btn-primary btn-sm btn-submitflag pull-right btn-fork" href="#">Fork</a>
 					<? } else { ?>
 						<a class="btn btn-sm btn-default pull-right" href="#">Forked</a>
 					<? } ?>
+					<a class="btn btn-success btn-sm btn-submitflag pull-right" href="<?= DOMAIN . '/editor.php?id=' . $data->midi->id ?>">Play!</a>
 				</h3>
 				<div>
 					<p><?= nl2br(htmlentities($midi->introduction)) ?></p>
@@ -75,31 +76,19 @@ mixin_header($pageTitle, 'view', [], $data->extra_msg, $data->extra_msg_type);
 				<?
 					require_once(ROOT . '/mixins/viewad_sidebar_avatar.php');
 					require_once(ROOT . '/mixins/viewad_sidebar_operations.php');
-					mixin_viewad_sidebar_avatar($user, '贡献于' . date('Y-m-d', $midi->createdTime));
-					mixin_viewad_sidebar_operations('评价此题目：', '把题目分享给朋友：', $midi);
+					mixin_viewad_sidebar_avatar($user, 'uploaded in ' . date('Y-m-d', $midi->createdTime));
+					mixin_viewad_sidebar_operations('Comment：', 'Share：', $midi);
 				?>
 			</div>
 		</div>
 	</div>
-	<div class="btn btn-default" style="width: 50px; margin-left: -20px; position: relative; float: left;" ng-click="sidebar_switch()">{{isSiderbarShown ? '收起' : '展开'}}</div>
+	<div class="btn btn-default" style="width: 50px; margin-left: -20px; position: relative; float: left;" ng-click="sidebar_switch()">{{isSiderbarShown ? 'Hide' : '展开'}}</div>
 </div>
 
-<nav class="navbar navbar-default navbar-bottom navbar-fixed-bottom">
-	<div class="container">
-		<div class="row">
-			<div class="navbar-header col-md-2 col-sm-2 col-xs-12">
-				<? if(!in_array($visitor->id, $resume->solvedList)) { ?>
-					<a class="btn btn-primary btn-md btn-submitflag" href="#">提交Flag (<?= $midi->price ?>积分)</a>
-				<? } else { ?>
-					<a class="btn btn-md btn-success" href="#">已解出</a>
-				<? } ?>
-			</div>
-			<div class="pull-right" style="margin-top: 8px">
-				<a href="https://github.com/sixstars" target="_blank"><img src="<?= DOMAIN ?>/static/img/footer-logo.png" /></a>
-			</div>
-		</div>
-	</div>
-</nav>
+<?php
+require_once(ROOT . '/mixins/footer.php');
+mixin_footer();
+?>
 
 <script>
 	function agree(id) {
@@ -129,6 +118,21 @@ mixin_header($pageTitle, 'view', [], $data->extra_msg, $data->extra_msg_type);
 			$scope.sidebar_switch = function() {
 				$scope.isSiderbarShown = !$scope.isSiderbarShown;
 			};
+		});
+
+		$(".btn-fork").on('click', function() {
+			if(confirm('Fork this midi?')) {
+				$.post('<?= DOMAIN ?>/api/fork.php', {id: <?= $midi->id ?>}, function(obj) {
+					obj = JSON.parse(obj);
+					if(obj.hasOwnProperty('id')) {
+						var id = obj.id;
+						alert('successfully forked');
+						window.location.href = '<?= DOMAIN ?>/view.php?id=' + id;
+					} else {
+						alert(obj.msg);
+					}
+				})
+			}
 		});
 	})();
 </script>

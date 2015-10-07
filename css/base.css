@@ -32,15 +32,7 @@ body.editor-body {
 .ui-selectable-helper {position: absolute; z-index: 100; border:1px dotted black;}
 
 
-p {
-    font-family: 方正兰亭黑, 微软雅黑, 宋体;
-}
-
-a {
-    font-family: 方正兰亭黑, 微软雅黑, 宋体;
-}
-
-small {
+p,a,small {
     font-family: 方正兰亭黑, 微软雅黑, 宋体;
 }
 

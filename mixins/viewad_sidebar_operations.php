@@ -9,16 +9,16 @@ function mixin_viewad_sidebar_operations($commentTips, $shareTips, $obj = null) 
 				<div class="form-group">
 					<textarea class="form-control" rows="6" name="content"></textarea>
 				</div>
-				<button type="submit" class="btn btn-default">评论</button>
+				<button type="submit" class="btn btn-default">Submit</button>
 			</form>
 		</div>
 		<? if (Visitor::isSuperman()) { ?>
 			<div id="adminOps" class="row">
 				<h3>超人操作：</h3>
-				<form method="post">
+				<form method="post" action="">
 					<input type="hidden" name="post_type" value="manager_control">
 					<input name='reason' placeholder="删除原因">
-					<button>确定</button>
+					<input type="submit" value="delete" />
 				</form>
 				<? if ($obj && ($obj instanceof MidiFile)) { ?>
 					<div><a href="<?= DOMAIN ?>/upload.php?editMidiId=<?= $obj->id ?>">Edit MIDI Info</a></div>

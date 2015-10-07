@@ -5,7 +5,7 @@ Util::checkEntry();
 
 ?>
 <div class="row listing-filters">
-	<div class="col-md-1-2">
+	<div class="col-md-3">
 		<a class="listing-filter" href="#"><span class="caret"></span></a>
 		<div class="listing-filter-menu horizontal-section hidden" data-showFlag="0">
 			<paper-menu data-prop="category" selected="<?= intval(Util::get('category', 0)) ?>">
@@ -16,13 +16,13 @@ Util::checkEntry();
 			</paper-menu>
 		</div>
 	</div>
-	<div class="col-md-1-2">
+	<div class="col-md-3">
 		<a class="listing-filter" href="#"><span class="caret"></span></a>
 		<div class="listing-filter-menu horizontal-section hidden" data-showFlag="0">
 			<paper-menu data-prop="price" selected="<?= intval(Util::get('price', 0)) ?>">
 				<?php
 					foreach (Util::$filter_price as $id => $range) {
-						if ($id == 0) echo '<paper-item data-val="0">全部积分</paper-item>';
+						if ($id == 0) echo '<paper-item data-val="0">All Price</paper-item>';
 						else {
 							?>
 								<paper-item data-val="<?= $id ?>"><?= $range[0] ?>~<?= $range[1] ?></paper-item>
@@ -33,7 +33,7 @@ Util::checkEntry();
 			</paper-menu>
 		</div>
 	</div>
-
+	<?php /*
 	<div class="col-md-2 listing-filter">
 		<input type="checkbox" data-prop="solvedOnly" <?= Util::get('solvedOnly') ? 'checked="checked"' : '' ?> />
 		<label>
@@ -46,7 +46,7 @@ Util::checkEntry();
 			只看未解出
 		</label>
 	</div>
-
+	*/ ?>
 </div>
 
 <script>
@@ -61,7 +61,7 @@ Util::checkEntry();
 
 		// 初始化下拉菜单显示项
 		$item.filter('.iron-selected').each(function() {
-			var showSpan = $(this).parents('.col-md-1-2').children('a').get(0);
+			var showSpan = $(this).parents('.listing-filters>div').children('a').get(0);
 			showSpan.innerHTML = this.innerText + ' ' + showSpan.innerHTML;
 		});
 

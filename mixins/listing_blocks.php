@@ -3,14 +3,14 @@
 
 require_once('listing_block.php');
 
-$mixin_listing_blocks_default_callback = function(Problem $resume) {
+$mixin_listing_blocks_default_callback = function(MidiFile $midi) {
 	?>
 	<div class="col-md-2 listing-block-sidebar">
-		<span><?= $resume->solvedCount ?>人解出 / <?= $resume->viewCount ?>人浏览</span>
+		<span><?= count($midi->viewList) ?> Browsered</span>
 	</div>
 	<div class="col-md-3 listing-block-sidebar">
-		<span class="red"><?= $resume->prize ?>积分</span>
-		<span style="margin-left: 40px"><a href="<?= DOMAIN ?>/problem.php?id=<?= $resume->id ?>" target="_blank">查看详情</a></span>
+		<span class="red"><?= $midi->price ?> Points</span>
+		<span style="margin-left: 40px"><a href="<?= DOMAIN ?>/view.php?id=<?= $midi->id ?>" target="_blank">View</a></span>
 	</div>
 	<?
 };
@@ -26,7 +26,7 @@ $mixin_listing_blocks = function($midis, $operatorCallback = null) use ($mixin_l
 
 	if (count($midis) == 0) { ?>
 		<blockquote class="listing-block">
-			<p>没有符合条件的结果</p>
+			<p>Not Found</p>
 		</blockquote>
 	<?php }
 };

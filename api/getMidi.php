@@ -3,7 +3,7 @@
 
 require_once('../init.php');
 
-$id = getInt('id', 0);
+$id = Util::getInt('id', 0);
 $midi = MidiFile::fetch($id);
 
 if(!$midi) {
