@@ -49,7 +49,7 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 		</div>
 	</div>
 	<div class="{{loading ? '' : 'hidden'}}">
-		<p>Loading... Please wait.</p>
+		<p>Loading... It should take some time...</p>
 	</div>
 </div>
 

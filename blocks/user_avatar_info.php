@@ -34,6 +34,7 @@ Util::checkEntry();
 	</div>
 	<div class="col-md-8">
 		<p>
+			Self introduction:<br />
 			<?= nl2br(htmlentities($user->introduction)) ?>
 		</p>
 	</div>
