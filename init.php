@@ -24,4 +24,6 @@ if(file_exists($file)) {
 	} catch(RedirectException $e) {
 		Util::redirect($e->getMessage());
 	}
+} else {
+	$data = (new BaseController())->getViewData();
 }

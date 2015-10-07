@@ -33,12 +33,13 @@ mixin_header($pageTitle, 'view', [], $data->extra_msg, $data->extra_msg_type);
 						<? } else { ?>
 							<a class="btn btn-sm btn-default pull-right" href="#">Forked</a>
 						<? }
+
+						if (!in_array(Visitor::user()->id, $midi->tipedList)) { ?>
+							<a class="btn btn-primary btn-sm pull-right btn-like" href="#">Like</a>
+						<? } else { ?>
+							<a class="btn btn-sm btn-default pull-right" href="#">Liked</a>
+						<? }
 					}?>
-					<? if(Visitor::user() && !in_array(Visitor::user()->id, $midi->tipedList)) { ?>
-						<a class="btn btn-primary btn-sm pull-right btn-like" href="#">Like</a>
-					<? } else { ?>
-						<a class="btn btn-sm btn-default pull-right" href="#">Liked</a>
-					<? } ?>
 				</h3>
 				<div>
 					<p><?= nl2br(htmlentities($midi->introduction)) ?></p>
@@ -59,7 +60,10 @@ mixin_header($pageTitle, 'view', [], $data->extra_msg, $data->extra_msg_type);
 				</div>
 			</div>
 			<br />
-			<a class="btn btn-success btn-lg" href="<?= DOMAIN . '/editor.php?id=' . $data->midi->id ?>">Play!</a>
+			<a class="btn btn-success btn-lg" href="<?= DOMAIN . '/editor.php?id=' . $data->midi->id ?>">Play!</a>&nbsp;
+			<? if(Visitor::user()) { ?>
+				<a class="btn btn-default btn-lg" href="<?= DOMAIN . '/api/download.php?id=' . $data->midi->id ?>">Download</a>
+			<? } ?>
 			<br />
 			<div id="comment-history" class=".resume-comment">
 				<h3>Comments:</h3>

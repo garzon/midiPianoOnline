@@ -3,9 +3,9 @@
 
 class Util {
 
-	public static $categories = ["All categories", "Classic", "Light Music", "New Century", "Comic & Game", "b", "c", "d", "Others",];
+	public static $categories = ["All categories", "Classical", "Light Music", "New Century", "Comic/Game/Movie", "Songs", "Original", "Pop", "Others",];
 
-	public static $filter_price = [[0, 500], [0, 50], [51, 100], [101, 200], [201, 500]];
+	public static $filter_price = [[0, 500], [0, 10], [10, 50], [50, 100], [100, 1000]];
 
 	public static function get($key, $defaultVal = null) {
 		if (!isset($_GET[$key])) return $defaultVal;
