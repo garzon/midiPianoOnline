@@ -54,21 +54,21 @@ class Visitor {
 	public static function login($key, $pwd) {
 		$user = User::findOne(['name' => $key]);
 		if (empty($user)) $user = User::findOne(['email' => $key]);
-		if (!$user) return '用户不存在！';
-		if (!self::verify_password($user, $pwd)) return '密码错误！';
+		if (!$user) return 'This user does not exist!';
+		if (!self::verify_password($user, $pwd)) return 'The password does not match.';
 		self::setLoginCookie($user);
 		return 'success';
 	}
 
 	public static function register($name, $email, $pwd, $code = '') {
-		if(strlen($name) < 3) return "用户名至少4个字符长度";
-		if(preg_match('/[^0-9A-Za-z]/', $name)) return '用户名只能为大小写字母和数字!';
+		if(strlen($name) < 3) return "The length of username is at least 4.";
+		if(preg_match('/[^0-9A-Za-z]/', $name)) return 'Only alphabetical and numeric characters are allowed in the username.';
 
 		$user = User::findOne(['name' => $name]);
-		if($user) return '用户名已存在！';
+		if($user) return 'This username is taken.';
 
 		if(empty($user)) $user = User::findOne(['email' => $email]);
-		if($user) return '邮箱重复！';
+		if($user) return 'This email address is registered.';
 
 		$user = new User();
 		$user->isSuperman = false;
