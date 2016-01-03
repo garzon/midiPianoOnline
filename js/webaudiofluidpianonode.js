@@ -21,8 +21,14 @@ define(['WebAudioInstructmentNode'], function(WebAudioInstructmentNode) {
     }
 
     function WebAudioFluidPianoNode(context, note, volume, channelId) {
-        this.src = context.createBufferSource();
-        this.src.buffer = buffer[note];
+        if(typeof buffer[note] !== 'undefined') {
+            this.src = context.createBufferSource();
+            this.src.buffer = buffer[note];
+            this.invalid = false;
+        } else {
+            this.invalid = true;
+            return;
+        }
 
         this.envelope = context.createGain();
         this.envelope.gain.value = volume * 8;
@@ -31,20 +37,24 @@ define(['WebAudioInstructmentNode'], function(WebAudioInstructmentNode) {
     }
 
     WebAudioFluidPianoNode.prototype.connect = function (webAudioNode) {
+        if(this.invalid) return;
         this.envelope.connect(webAudioNode);
     };
 
     WebAudioFluidPianoNode.prototype.start = function (when) {
+        if(this.invalid) return;
         if (typeof when == 'undefined') when = 0;
         this.src.start(when);
     };
 
     WebAudioFluidPianoNode.prototype.stop = function (when) {
+        if(this.invalid) return;
         if (typeof when == 'undefined') when = 0;
         this.src.stop(when);
     };
 
     WebAudioFluidPianoNode.prototype.disconnect = function () {
+        if(this.invalid) return;
         this.src.disconnect();
         this.envelope.disconnect();
     };

@@ -176,7 +176,7 @@ define(function(require) {
         if(countdown > 0)
             this._playLoopTimerId = window.setTimeout(playLoopCallback, countdown);
         else {
-            console.log(countdown);
+            //console.log(countdown);
             playLoopCallback();
         }
     };

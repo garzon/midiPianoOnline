@@ -159,7 +159,8 @@ define(function() {
             }
 
             var $key = keyArray[note];
-
+            if(typeof $key === 'undefined') return;
+            
             screen_path = getPosition($key.get(0)).top;
             var velocity = screen_path / screen_time * tempo / standard_tempo;
             var ticksToLenCoeff = 60 * velocity / tempo / ticksPerBeat;
