@@ -3,6 +3,8 @@
 ## Online Demo
 http://garzon.science/midiPianoOnline/
 
+![demo](intro.png)
+
 ## Welcome to Midi Piano Online!
 Midi Piano Online is a website where you can share, download, and even CREATE, EDIT and PLAY with the midi files online!
 
