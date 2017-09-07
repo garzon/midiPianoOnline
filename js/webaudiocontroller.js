@@ -4,8 +4,8 @@ define(function() {
         if(WebAudioController._instance !== null)
             return WebAudioController._instance;
 
-        var AudioContext = AudioContext || webkitAudioContext; // for ios/safari
-        this.context = new AudioContext();
+        var AudioContext2 = AudioContext || webkitAudioContext; // for ios/safari
+        this.context = new AudioContext2();
 
         this._objs = {};
         this._nodeAtChannel = {};
@@ -82,7 +82,7 @@ define(function() {
     };
 
     WebAudioController.prototype._noteOff = function(channelId, note) {
-        if(this._objs[this._indexNote(channelId, note)]) {
+        if(this._objs[this._indexNote(channelId, note)] && typeof(window.substain) == 'undefined') {
             this._objs[this._indexNote(channelId, note)].stop();
             this._objs[this._indexNote(channelId, note)].disconnect();
             this._objs[this._indexNote(channelId, note)] = undefined;

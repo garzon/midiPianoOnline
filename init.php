@@ -7,9 +7,21 @@ define('DOMAIN', "//{$_SERVER['HTTP_HOST']}/midiPianoOnline");
 
 date_default_timezone_set('Asia/Hong_Kong');
 
+require_once "vendor/autoload.php";
+
 spl_autoload_register(function($class_name) {
+	
 	$file = ROOT . '/lib/' . $class_name . '.php';
-	if (file_exists($file)) require_once($file);
+	if (file_exists($file)) {
+		require_once($file);
+		return;
+	}
+
+	$file = ROOT . '/lib/Mongo/' . $class_name . '.php';
+	if(file_exists($file)) {
+		require_once($file);
+		return;
+	}
 });
 
 require_once(ROOT . '/secret.inc.php');
