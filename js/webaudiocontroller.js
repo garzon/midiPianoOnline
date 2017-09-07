@@ -82,7 +82,7 @@ define(function() {
     };
 
     WebAudioController.prototype._noteOff = function(channelId, note) {
-        if(this._objs[this._indexNote(channelId, note)] && typeof(window.substain) == 'undefined') {
+        if(this._objs[this._indexNote(channelId, note)] && !window.substain) {
             this._objs[this._indexNote(channelId, note)].stop();
             this._objs[this._indexNote(channelId, note)].disconnect();
             this._objs[this._indexNote(channelId, note)] = undefined;

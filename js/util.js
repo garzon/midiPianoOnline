@@ -1,6 +1,6 @@
 $document = $(document);
 
-window.substain = true;
+window.substain = false;
 
 function getPosition(element) {
     var left = 0, top = 0;

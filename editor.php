@@ -22,7 +22,10 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 			<i class="glyphicon" ng-class="playing ? 'glyphicon-pause' : 'glyphicon-play'"></i>
 		</span>
 		<span class="controller-button controller-button-record"  ng-class="controller.recording ? 'red' : ''" ng-click="recordOnClick()">
-			<i class="glyphicon glyphicon-record"></i>
+			<i class="glyphicon glyphicon-facetime-video"></i>
+		</span>
+		<span class="controller-button controller-button-substain"  ng-class="controller.substain ? 'green' : ''" ng-click="substainOnClick()">
+			<i class="glyphicon glyphicon-random"></i>
 		</span>
 		<span class="controller-button controller-button-upload" ng-click="uploadOnClick()">
 			<i class="glyphicon glyphicon-floppy-open"></i>
@@ -103,6 +106,12 @@ mixin_header('Midi Piano Online', 'player', ['midikeyboard.css']);
 				} else {
 					controller.stopRecord();
 				}
+			};
+			
+			$scope.controller.substain = false;
+			$scope.substainOnClick = function() {
+				$scope.controller.substain = !$scope.controller.substain;
+				window.substain = $scope.controller.substain;
 			};
 
 			$scope.uploadOnClick = function() {};
