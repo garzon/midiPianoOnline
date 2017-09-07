@@ -1,5 +1,8 @@
 # Midi Piano Online Help
 
+## how to install
+All you need is `$ bower install` and setup php7 environment with `short_open_tag=on`.
+
 ## Online Demo
 http://garzon.science/midiPianoOnline/
 
